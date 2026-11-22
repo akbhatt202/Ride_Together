@@ -1,0 +1,27 @@
+{
+  "name": "ridetogether-platform",
+  "version": "1.0.0",
+  "description": "RideTogether - Carpooling & Ride Sharing Platform",
+  "main": "ridetogether/backend/server.js",
+  "scripts": {
+    "build:frontend": "cd ridetogether/frontend && npm install && npm run build",
+    "build:backend": "cd ridetogether/backend && npm install",
+    "build": "npm run build:frontend && npm run build:backend",
+    "start": "node ridetogether/backend/server.js",
+    "dev:backend": "cd ridetogether/backend && npm run dev",
+    "dev:frontend": "cd ridetogether/frontend && npm run dev",
+    "seed": "cd ridetogether/backend && npm run seed",
+    "test:api": "cd ridetogether/backend && npm run test:api"
+  },
+  "keywords": [
+    "carpooling",
+    "ridesharing",
+    "express",
+    "mongodb",
+    "react",
+    "render",
+    "vercel"
+  ],
+  "author": "RideTogether Team",
+  "license": "ISC"
+}
