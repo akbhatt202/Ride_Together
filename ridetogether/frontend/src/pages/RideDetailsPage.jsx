@@ -5,6 +5,8 @@ import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Alert from '../components/Alert';
 import RideMap from '../components/RideMap';
+import UberRideModal from '../components/UberRideModal';
+import LiveTripExperience from '../components/LiveTripExperience';
 import {
   MapPin,
   Calendar,
@@ -24,7 +26,9 @@ import {
   AlertTriangle,
   Trash2,
   Check,
-  X
+  X,
+  Zap,
+  Sparkles
 } from 'lucide-react';
 
 export default function RideDetailsPage() {
@@ -42,6 +46,7 @@ export default function RideDetailsPage() {
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState('');
   const [myExistingBooking, setMyExistingBooking] = useState(null);
+  const [showUberModal, setShowUberModal] = useState(false);
 
   // Driver ride management
   const [rideRequests, setRideRequests] = useState([]);
@@ -92,7 +97,7 @@ export default function RideDetailsPage() {
     fetchRideAndBookingDetails();
   }, [id, isAuthenticated]);
 
-  // Passenger submits booking request
+  // Standard booking submit
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     if (!isAuthenticated) {
@@ -116,6 +121,26 @@ export default function RideDetailsPage() {
       setBookingError(err.message || 'Failed to submit booking request');
     } finally {
       setBookingLoading(false);
+    }
+  };
+
+  // Uber / Rapido interactive modal confirmation handler
+  const handleUberBookingConfirmed = async (bookingDetails) => {
+    try {
+      setBookingLoading(true);
+      const res = await api.bookings.create({
+        rideId: ride._id,
+        seatsBooked: bookingDetails.seats
+      });
+      if (res.success) {
+        setActionSuccess(`🎉 Ride confirmed! Your 4-Digit Safety PIN is ${bookingDetails.otp}. Have a great journey!`);
+        fetchRideAndBookingDetails();
+      }
+    } catch (err) {
+      setBookingError(err.message || 'Failed to confirm booking');
+    } finally {
+      setBookingLoading(false);
+      setShowUberModal(false);
     }
   };
 
@@ -238,9 +263,27 @@ export default function RideDetailsPage() {
         {actionSuccess && <Alert type="success" message={actionSuccess} onClose={() => setActionSuccess('')} />}
         {bookingError && <Alert type="error" message={bookingError} onClose={() => setBookingError('')} />}
 
+        {/* Uber / Rapido Modal Popup when triggered */}
+        {showUberModal && (
+          <UberRideModal
+            ride={ride}
+            onClose={() => setShowUberModal(false)}
+            onBookingConfirmed={handleUberBookingConfirmed}
+          />
+        )}
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 390px', gap: '2.5rem', alignItems: 'start' }} id="ride-details-grid">
-          {/* Left Column: Ride Journey, Live Map & Driver Details */}
+          {/* Left Column: Journey Details, Live In-Ride HUD, Map */}
           <div>
+            {/* If passenger already has active/pending booking: Uber Live Trip Experience HUD */}
+            {myExistingBooking && (
+              <LiveTripExperience
+                booking={myExistingBooking}
+                ride={ride}
+                onTripCompleted={fetchRideAndBookingDetails}
+              />
+            )}
+
             {/* Journey Header Card */}
             <div className="card" style={{ padding: '2rem', marginBottom: '1.75rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
@@ -496,6 +539,35 @@ export default function RideDetailsPage() {
               </div>
             </div>
 
+            {/* Instant Uber / Rapido Booking Mode Button */}
+            {!myExistingBooking && !isDriverOfRide && ride.availableSeats > 0 && user?.role !== 'driver' && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    navigate('/login', { state: { from: { pathname: `/rides/${id}` } } });
+                    return;
+                  }
+                  setShowUberModal(true);
+                }}
+                className="btn btn-primary btn-block btn-lg"
+                style={{
+                  marginBottom: '1.25rem',
+                  backgroundColor: '#0f172a',
+                  borderColor: '#10b981',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  boxShadow: '0 4px 14px rgba(16,185,129,0.3)',
+                  padding: '0.85rem'
+                }}
+              >
+                <Zap size={18} color="#34d399" />
+                <span>Instant Book (Uber / Rapido Flow)</span>
+              </button>
+            )}
+
             {/* State A: Current User already booked this ride */}
             {myExistingBooking ? (
               <div style={{ backgroundColor: 'var(--accent-soft)', border: '1px solid var(--accent)', borderRadius: 'var(--radius-md)', padding: '1.25rem', textAlign: 'center' }}>
@@ -578,11 +650,11 @@ export default function RideDetailsPage() {
                 {isAuthenticated ? (
                   <button
                     type="submit"
-                    className="btn btn-primary btn-lg btn-block"
+                    className="btn btn-outline btn-block"
                     disabled={bookingLoading}
                   >
-                    <CheckCircle2 size={18} />
-                    <span>{bookingLoading ? 'Submitting Request...' : 'Request to Book Seats'}</span>
+                    <CheckCircle2 size={16} />
+                    <span>{bookingLoading ? 'Submitting...' : 'Standard Booking Request'}</span>
                   </button>
                 ) : (
                   <Link

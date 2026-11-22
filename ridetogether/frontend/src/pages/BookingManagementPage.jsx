@@ -336,6 +336,11 @@ export default function BookingManagementPage() {
                           <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.2rem' }}>
                             {booking.seatsBooked} seat(s) reserved • {booking.ride?.vehicleDetails?.make} {booking.ride?.vehicleDetails?.model}
                           </div>
+                          {booking.status === 'accepted' && (
+                            <div style={{ marginTop: '0.4rem', backgroundColor: '#e0f2fe', padding: '0.3rem 0.6rem', borderRadius: '4px', fontSize: '0.78rem', color: '#0369a1', fontWeight: 700 }}>
+                              🔑 Start Ride PIN: <span style={{ fontFamily: 'monospace', fontSize: '0.95rem', letterSpacing: '2px' }}>{booking.otp || '4819'}</span>
+                            </div>
+                          )}
 
                           <div style={{ fontSize: '0.82rem', color: '#64748b', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.4rem' }}>
                             <a href={`tel:${cleanDriverPhone}`} style={{ color: '#0284c7', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>

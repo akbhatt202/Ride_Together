@@ -78,9 +78,12 @@ export default function RideCard({ ride }) {
           </div>
         </div>
 
-        <Link to={`/rides/${ride._id}`} className="btn btn-outline btn-sm">
-          View & Book
-        </Link>
+        <div style={{ display: 'flex', gap: '0.4rem' }}>
+          <Link to={`/rides/${ride._id}`} className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem' }}>
+            <span>Book Seat</span>
+            <ArrowRight size={13} />
+          </Link>
+        </div>
       </div>
     </div>
   );

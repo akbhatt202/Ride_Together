@@ -31,6 +31,39 @@ const bookingSchema = new mongoose.Schema(
       default: 'pending',
       index: true
     },
+    // Uber / Rapido Live Trip Lifecycle Fields
+    tripStatus: {
+      type: String,
+      enum: ['requested', 'accepted', 'arrived', 'in_progress', 'completed', 'cancelled'],
+      default: 'requested',
+      index: true
+    },
+    otp: {
+      type: String,
+      default: function () {
+        return Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit safety PIN
+      }
+    },
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5,
+      default: null
+    },
+    review: {
+      type: String,
+      default: ''
+    },
+    paymentMethod: {
+      type: String,
+      enum: ['upi', 'cash', 'card', 'wallet'],
+      default: 'upi'
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'completed'],
+      default: 'pending'
+    },
     createdAt: {
       type: Date,
       default: Date.now

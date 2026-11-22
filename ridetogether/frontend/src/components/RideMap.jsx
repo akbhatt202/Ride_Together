@@ -211,12 +211,29 @@ export default function RideMap({
             return prevIndex;
           }
 
+          const prevPoint = waypoints[prevIndex];
           const nextIndex = prevIndex + 1;
           const currentPoint = waypoints[nextIndex];
 
-          // Move the live car marker
+          // Calculate vehicle heading/bearing angle in degrees (Uber/Rapido car rotation)
+          const dLng = (currentPoint.lng - prevPoint.lng) * (Math.PI / 180);
+          const lat1 = prevPoint.lat * (Math.PI / 180);
+          const lat2 = currentPoint.lat * (Math.PI / 180);
+          const y = Math.sin(dLng) * Math.cos(lat2);
+          const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+          const bearing = Math.round((Math.atan2(y, x) * (180 / Math.PI) + 360) % 360);
+
+          // Move the live car marker & rotate towards heading
           if (carMarkerRef.current) {
             carMarkerRef.current.setLatLng([currentPoint.lat, currentPoint.lng]);
+            const markerEl = carMarkerRef.current.getElement();
+            if (markerEl) {
+              const svgEl = markerEl.querySelector('svg');
+              if (svgEl) {
+                svgEl.style.transform = `rotate(${bearing}deg)`;
+                svgEl.style.transition = 'transform 0.3s ease';
+              }
+            }
           }
 
           // Auto-center map on car if enabled

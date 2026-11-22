@@ -90,7 +90,13 @@ export const api = {
     reject: (id) =>
       request(`/bookings/${id}/reject`, { method: 'PATCH' }),
     cancel: (id) =>
-      request(`/bookings/${id}/cancel`, { method: 'PATCH' })
+      request(`/bookings/${id}/cancel`, { method: 'PATCH' }),
+    startTrip: (id, otp) =>
+      request(`/bookings/${id}/start`, { method: 'PATCH', body: { otp } }),
+    completeTrip: (id) =>
+      request(`/bookings/${id}/complete`, { method: 'PATCH' }),
+    rateTrip: (id, rating, review) =>
+      request(`/bookings/${id}/rate`, { method: 'PATCH', body: { rating, review } })
   },
 
   // Admin Endpoints

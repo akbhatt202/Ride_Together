@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import StatsCard from '../components/StatsCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Alert from '../components/Alert';
+import DriverCaptainMode from '../components/DriverCaptainMode';
 import {
   Car,
   DollarSign,
@@ -89,6 +90,13 @@ export default function DriverDashboard() {
 
         {error && <Alert type="error" message={error} onClose={() => setError('')} />}
         {actionSuccess && <Alert type="success" message={actionSuccess} onClose={() => setActionSuccess('')} />}
+
+        {/* Uber Driver & Rapido Captain Live Console */}
+        <DriverCaptainMode
+          onAcceptIncomingTrip={(trip) => {
+            setActionSuccess(`Trip accepted! Navigating to pickup at ${trip.pickup}.`);
+          }}
+        />
 
         {/* Aggregated KPI Cards */}
         <div className="stats-grid">

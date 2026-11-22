@@ -314,11 +314,103 @@ const cancelBooking = async (req, res, next) => {
   }
 };
 
+// @desc    Start trip by verifying 4-digit OTP (Uber / Rapido style)
+// @route   PATCH /api/bookings/:id/start
+// @access  Private (Driver or Passenger)
+const startTrip = async (req, res, next) => {
+  try {
+    const { otp } = req.body;
+    const booking = await Booking.findById(req.params.id).populate('ride');
+
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    // Verify OTP if provided by driver
+    if (otp && booking.otp && booking.otp !== otp.toString().trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid OTP! Please enter the correct 4-digit passenger PIN'
+      });
+    }
+
+    booking.tripStatus = 'in_progress';
+    await booking.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Trip started successfully! Have a safe journey.',
+      booking
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Complete trip & record payment (Uber / Rapido style)
+// @route   PATCH /api/bookings/:id/complete
+// @access  Private
+const completeTrip = async (req, res, next) => {
+  try {
+    const booking = await Booking.findById(req.params.id).populate('ride');
+
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    booking.tripStatus = 'completed';
+    booking.paymentStatus = 'completed';
+    await booking.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Trip completed! Collect ₹fare from passenger or verify UPI.',
+      booking
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Rate driver / passenger (1-5 stars & review)
+// @route   PATCH /api/bookings/:id/rate
+// @access  Private
+const rateTrip = async (req, res, next) => {
+  try {
+    const { rating, review } = req.body;
+    const booking = await Booking.findById(req.params.id);
+
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found' });
+    }
+
+    const starRating = parseInt(rating, 10);
+    if (isNaN(starRating) || starRating < 1 || starRating > 5) {
+      return res.status(400).json({ success: false, message: 'Rating must be between 1 and 5 stars' });
+    }
+
+    booking.rating = starRating;
+    if (review) booking.review = review.trim();
+    await booking.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Thank you for your feedback!',
+      booking
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createBooking,
   getMyBookings,
   getDriverRequests,
   acceptBooking,
   rejectBooking,
-  cancelBooking
+  cancelBooking,
+  startTrip,
+  completeTrip,
+  rateTrip
 };
