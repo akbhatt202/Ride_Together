@@ -38,7 +38,7 @@ export default function AdminDashboard() {
       setLoading(true);
       setError('');
 
-      const [dashRes, analyticsRes, usersRes, ridesRes] = await Promise.all([
+      const [dashRes, analyticsRes, ridesRes, usersRes] = await Promise.all([
         api.admin.getDashboard(),
         api.admin.getAnalytics(),
         api.admin.getRides('limit=50'),
@@ -47,8 +47,8 @@ export default function AdminDashboard() {
 
       if (dashRes.success) setDashboardData(dashRes.data);
       if (analyticsRes.success) setAnalytics(analyticsRes.analytics);
-      if (usersRes.success) setRides(usersRes.rides || []);
-      if (ridesRes.success) setUsers(ridesRes.users || []);
+      if (ridesRes.success) setRides(ridesRes.rides || []);
+      if (usersRes.success) setUsers(usersRes.users || []);
     } catch (err) {
       setError(err.message || 'Failed to load admin analytics');
     } finally {

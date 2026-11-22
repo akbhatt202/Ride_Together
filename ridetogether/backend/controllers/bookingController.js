@@ -249,12 +249,12 @@ const rejectBooking = async (req, res, next) => {
   }
 };
 
-// @desc    Passenger or Admin cancels a booking (restores seats if previously accepted)
+// @desc    Passenger, Driver, or Admin cancels a booking (restores seats if previously accepted)
 // @route   PATCH /api/bookings/:id/cancel
 // @access  Private
 const cancelBooking = async (req, res, next) => {
   try {
-    const booking = await Booking.findById(req.params.id);
+    const booking = await Booking.findById(req.params.id).populate('ride');
 
     if (!booking) {
       return res.status(404).json({
@@ -263,11 +263,12 @@ const cancelBooking = async (req, res, next) => {
       });
     }
 
-    // Ensure authorized: booking owner or admin
-    if (
-      booking.passenger.toString() !== req.user._id.toString() &&
-      req.user.role !== 'admin'
-    ) {
+    const isPassengerOwner = booking.passenger.toString() === req.user._id.toString();
+    const isRideDriver = booking.ride && booking.ride.driver.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    // Ensure authorized: booking owner, ride's driver, or admin
+    if (!isPassengerOwner && !isRideDriver && !isAdmin) {
       return res.status(403).json({
         success: false,
         message: 'Unauthorized to cancel this booking'
@@ -293,15 +294,15 @@ const cancelBooking = async (req, res, next) => {
     await booking.save();
 
     // If booking was accepted, restore seats atomically
-    if (wasAccepted) {
-      await Ride.findByIdAndUpdate(booking.ride, {
+    if (wasAccepted && booking.ride) {
+      await Ride.findByIdAndUpdate(booking.ride._id, {
         $inc: { availableSeats: booking.seatsBooked }
       });
     }
 
     const populatedBooking = await Booking.findById(booking._id)
       .populate('ride')
-      .populate('passenger', 'name email');
+      .populate('passenger', 'name email phone');
 
     res.status(200).json({
       success: true,

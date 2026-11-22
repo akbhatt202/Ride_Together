@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -13,11 +14,17 @@ import {
   Mail,
   Car,
   AlertCircle,
-  Filter
+  Filter,
+  Navigation,
+  MessageCircle,
+  MapPin,
+  Calendar,
+  CheckCircle2,
+  Trash2
 } from 'lucide-react';
 
 export default function BookingManagementPage() {
-  const { user, isDriver } = useAuth();
+  const { user, isDriver, isAdmin } = useAuth();
 
   // Active view: 'driver-requests' if driver, else 'my-bookings'
   const [activeTab, setActiveTab] = useState(isDriver ? 'driver-requests' : 'my-bookings');
@@ -84,9 +91,9 @@ export default function BookingManagementPage() {
     }
   };
 
-  // Passenger cancels booking
+  // Cancel booking (passenger or driver)
   const handleCancel = async (bookingId) => {
-    if (!window.confirm('Are you sure you want to cancel this booking? Any reserved seats will be restored.')) return;
+    if (!window.confirm('Are you sure you want to cancel this booking? Reserved seats will be restored.')) return;
     try {
       setError('');
       const res = await api.bookings.cancel(bookingId);
@@ -119,8 +126,8 @@ export default function BookingManagementPage() {
       <div className="container">
         {/* Header */}
         <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '2rem', marginBottom: '0.3rem' }}>Booking Management</h1>
-          <p style={{ color: '#64748b' }}>Approve passenger seat requests and manage your travel reservations</p>
+          <h1 style={{ fontSize: '2rem', marginBottom: '0.3rem' }}>Booking & Ride Management</h1>
+          <p style={{ color: '#64748b' }}>Approve passenger seat requests, track live route maps, and manage reservations</p>
         </div>
 
         {error && <Alert type="error" message={error} onClose={() => setError('')} />}
@@ -160,150 +167,215 @@ export default function BookingManagementPage() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Filter size={15} color="#64748b" />
-            <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>Filter:</span>
             <select
               className="form-select"
-              style={{ width: 'auto', padding: '0.35rem 0.75rem', fontSize: '0.85rem' }}
+              style={{ width: 'auto', padding: '0.3rem 1.75rem 0.3rem 0.75rem', fontSize: '0.85rem' }}
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
               <option value="all">All Statuses</option>
-              <option value="pending">Pending</option>
-              <option value="accepted">Accepted</option>
+              <option value="pending">Pending Approval</option>
+              <option value="accepted">Accepted / Confirmed</option>
               <option value="rejected">Rejected</option>
               <option value="cancelled">Cancelled</option>
             </select>
           </div>
         </div>
 
-        {/* Content View: Driver Requests */}
-        {activeTab === 'driver-requests' && (
+        {/* TAB 1: Driver Requests (Incoming Passenger Requests) */}
+        {activeTab === 'driver-requests' && isDriver && (
           <div>
             {filteredDriverRequests.length === 0 ? (
-              <div className="card" style={{ textAlign: 'center', padding: '3.5rem 1rem' }}>
+              <div className="card" style={{ padding: '3.5rem', textAlign: 'center' }}>
                 <Clock size={36} color="#94a3b8" style={{ margin: '0 auto 1rem auto' }} />
-                <h3 style={{ fontSize: '1.2rem', marginBottom: '0.4rem' }}>No Requests Found</h3>
-                <p style={{ color: '#64748b', fontSize: '0.92rem' }}>
-                  {statusFilter === 'all'
-                    ? 'No passengers have requested seats on your published rides yet.'
-                    : `No booking requests with status '${statusFilter}'.`}
-                </p>
+                <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>No Requests Matching Filter</h3>
+                <p style={{ color: '#64748b' }}>When passengers request seats on your published rides, they will appear here.</p>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                {filteredDriverRequests.map((req) => (
-                  <div key={req._id} className="card" style={{ padding: '1.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem', marginBottom: '1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-                        <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: 'var(--primary)' }}>
-                          {req.passenger?.name ? req.passenger.name.charAt(0).toUpperCase() : 'P'}
-                        </div>
-                        <div>
-                          <div style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--primary)' }}>
-                            {req.passenger?.name || 'Passenger'}
-                          </div>
-                          <div style={{ display: 'flex', gap: '1rem', fontSize: '0.82rem', color: '#64748b' }}>
-                            <span>{req.passenger?.phone}</span>
-                            <span>{req.passenger?.email}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div style={{ textAlign: 'right' }}>
-                        <span className={`badge badge-${req.status}`}>{req.status}</span>
-                        <div style={{ fontSize: '0.78rem', color: '#64748b', marginTop: '0.3rem' }}>
-                          Requested on {new Date(req.createdAt).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '1.25rem' }}>
+                {filteredDriverRequests.map((req) => {
+                  const cleanPassengerPhone = (req.passenger?.phone || '').replace(/[^\d]/g, '');
+                  return (
+                    <div key={req._id} className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                       <div>
-                        <div style={{ fontWeight: 700, color: 'var(--primary)', fontSize: '1.1rem' }}>
-                          {req.ride?.source} → {req.ride?.destination}
+                        {/* Status & Fare Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
+                          <span className={`badge badge-${req.status}`}>{req.status.toUpperCase()}</span>
+                          <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent)' }}>
+                            ₹{req.totalFare}
+                          </span>
                         </div>
-                        <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '0.2rem' }}>
-                          Departure: {new Date(req.ride?.departureDate).toLocaleDateString()} at {req.ride?.departureTime}
+
+                        {/* Route Info */}
+                        <div style={{ marginBottom: '0.75rem' }}>
+                          <div style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--primary)', marginBottom: '0.2rem' }}>
+                            {req.ride?.source} → {req.ride?.destination}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: '#64748b' }}>
+                            <Calendar size={13} color="var(--accent)" />
+                            <span>{new Date(req.ride?.departureDate).toLocaleDateString()} at {req.ride?.departureTime}</span>
+                          </div>
                         </div>
-                        <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--primary)', marginTop: '0.4rem' }}>
-                          Seats Requested: <strong style={{ color: 'var(--accent)' }}>{req.seatsBooked}</strong> • Total Fare: <strong style={{ color: 'var(--accent)' }}>₹{req.totalFare}</strong>
+
+                        {/* Passenger Details */}
+                        <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: 'var(--radius-md)', marginBottom: '1rem', border: '1px solid var(--border)' }}>
+                          <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--primary)', marginBottom: '0.2rem' }}>
+                            {req.passenger?.name} • <span style={{ color: 'var(--accent)' }}>{req.seatsBooked} seat(s) requested</span>
+                          </div>
+                          <div style={{ fontSize: '0.82rem', color: '#64748b', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.3rem' }}>
+                            <a href={`tel:${cleanPassengerPhone}`} style={{ color: '#0284c7', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                              <Phone size={12} />
+                              <span>{req.passenger?.phone}</span>
+                            </a>
+                            <a
+                              href={`https://wa.me/91${cleanPassengerPhone}?text=Hi%20${encodeURIComponent(req.passenger?.name || '')},%20regarding%20your%20booking%20on%20RideTogether.`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ color: '#16a34a', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
+                            >
+                              <MessageCircle size={12} />
+                              <span>WhatsApp</span>
+                            </a>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Driver Action Buttons */}
-                      {req.status === 'pending' && (
-                        <div style={{ display: 'flex', gap: '0.75rem' }}>
-                          <button
-                            onClick={() => handleAccept(req._id)}
-                            className="btn btn-primary"
-                          >
-                            <Check size={16} />
-                            <span>Accept ({req.seatsBooked} seats)</span>
-                          </button>
-                          <button
-                            onClick={() => handleReject(req._id)}
-                            className="btn btn-outline"
-                            style={{ color: 'var(--danger)', borderColor: 'var(--border)' }}
-                          >
-                            <X size={16} />
-                            <span>Decline</span>
-                          </button>
+                      {/* Actions */}
+                      <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Link to={`/rides/${req.ride?._id}`} className="btn btn-outline btn-sm" style={{ fontSize: '0.8rem' }}>
+                          <Navigation size={13} />
+                          <span>View Route Map</span>
+                        </Link>
+
+                        <div style={{ display: 'flex', gap: '0.4rem' }}>
+                          {req.status === 'pending' && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleAccept(req._id)}
+                                className="btn btn-primary btn-sm"
+                                style={{ fontSize: '0.8rem' }}
+                              >
+                                <Check size={14} />
+                                <span>Accept</span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleReject(req._id)}
+                                className="btn btn-outline btn-sm"
+                                style={{ fontSize: '0.8rem' }}
+                              >
+                                <X size={14} />
+                                <span>Decline</span>
+                              </button>
+                            </>
+                          )}
+                          {req.status === 'accepted' && (
+                            <button
+                              type="button"
+                              onClick={() => handleCancel(req._id)}
+                              className="btn btn-outline btn-sm"
+                              style={{ fontSize: '0.8rem', color: 'var(--danger)', borderColor: 'var(--danger)' }}
+                            >
+                              <span>Cancel</span>
+                            </button>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
         )}
 
-        {/* Content View: My Bookings (Passenger) */}
+        {/* TAB 2: Passenger Reservations (My Bookings) */}
         {activeTab === 'my-bookings' && (
           <div>
             {filteredMyBookings.length === 0 ? (
-              <div className="card" style={{ textAlign: 'center', padding: '3.5rem 1rem' }}>
+              <div className="card" style={{ padding: '3.5rem', textAlign: 'center' }}>
                 <CalendarCheck size={36} color="#94a3b8" style={{ margin: '0 auto 1rem auto' }} />
-                <h3 style={{ fontSize: '1.2rem', marginBottom: '0.4rem' }}>No Bookings</h3>
-                <p style={{ color: '#64748b', fontSize: '0.92rem' }}>
-                  {statusFilter === 'all'
-                    ? "You haven't requested any rides yet."
-                    : `No reservations found with status '${statusFilter}'.`}
-                </p>
+                <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>No Reservations Found</h3>
+                <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>You have not booked any shared rides matching this filter.</p>
+                <Link to="/rides" className="btn btn-primary">
+                  Search Available Rides
+                </Link>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                {filteredMyBookings.map((b) => (
-                  <div key={b._id} className="card" style={{ padding: '1.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem', marginBottom: '1rem' }}>
-                      <div style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--primary)' }}>
-                        {b.ride?.source} → {b.ride?.destination}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '1.25rem' }}>
+                {filteredMyBookings.map((booking) => {
+                  const cleanDriverPhone = (booking.ride?.driver?.phone || '').replace(/[^\d]/g, '');
+                  return (
+                    <div key={booking._id} className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      <div>
+                        {/* Status & Fare Header */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
+                          <span className={`badge badge-${booking.status}`}>{booking.status.toUpperCase()}</span>
+                          <span style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--accent)' }}>
+                            ₹{booking.totalFare}
+                          </span>
+                        </div>
+
+                        {/* Route Info */}
+                        <div style={{ marginBottom: '0.75rem' }}>
+                          <div style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--primary)', marginBottom: '0.2rem' }}>
+                            {booking.ride?.source} → {booking.ride?.destination}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: '#64748b' }}>
+                            <Calendar size={13} color="var(--accent)" />
+                            <span>{new Date(booking.ride?.departureDate).toLocaleDateString()} at {booking.ride?.departureTime}</span>
+                          </div>
+                        </div>
+
+                        {/* Driver & Vehicle Details */}
+                        <div style={{ backgroundColor: '#f8fafc', padding: '0.85rem', borderRadius: 'var(--radius-md)', marginBottom: '1rem', border: '1px solid var(--border)' }}>
+                          <div style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--primary)' }}>
+                            Driver: {booking.ride?.driver?.name || 'Verified Driver'}
+                          </div>
+                          <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.2rem' }}>
+                            {booking.seatsBooked} seat(s) reserved • {booking.ride?.vehicleDetails?.make} {booking.ride?.vehicleDetails?.model}
+                          </div>
+
+                          <div style={{ fontSize: '0.82rem', color: '#64748b', display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.4rem' }}>
+                            <a href={`tel:${cleanDriverPhone}`} style={{ color: '#0284c7', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                              <Phone size={12} />
+                              <span>{booking.ride?.driver?.phone}</span>
+                            </a>
+                            <a
+                              href={`https://wa.me/91${cleanDriverPhone}?text=Hi%20${encodeURIComponent(booking.ride?.driver?.name || '')},%20regarding%20our%20ride%20on%20RideTogether.`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ color: '#16a34a', display: 'flex', alignItems: 'center', gap: '0.2rem' }}
+                            >
+                              <MessageCircle size={12} />
+                              <span>WhatsApp</span>
+                            </a>
+                          </div>
+                        </div>
                       </div>
 
-                      <div style={{ textAlign: 'right' }}>
-                        <span className={`badge badge-${b.status}`}>{b.status}</span>
+                      {/* Actions */}
+                      <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.85rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Link to={`/rides/${booking.ride?._id}`} className="btn btn-outline btn-sm" style={{ fontSize: '0.8rem' }}>
+                          <Navigation size={13} />
+                          <span>Track Live GPS Map</span>
+                        </Link>
+
+                        {['pending', 'accepted'].includes(booking.status) && (
+                          <button
+                            type="button"
+                            onClick={() => handleCancel(booking._id)}
+                            className="btn btn-outline btn-sm"
+                            style={{ fontSize: '0.8rem', color: 'var(--danger)', borderColor: 'var(--danger)' }}
+                          >
+                            <span>Cancel Booking</span>
+                          </button>
+                        )}
                       </div>
                     </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-                      <div style={{ fontSize: '0.88rem', color: '#64748b', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-                        <div>Date: <strong>{new Date(b.ride?.departureDate).toLocaleDateString()} at {b.ride?.departureTime}</strong></div>
-                        <div>Driver: <strong>{b.ride?.driver?.name}</strong> ({b.ride?.driver?.phone})</div>
-                        <div>Seats Reserved: <strong>{b.seatsBooked}</strong> • Total: <strong style={{ color: 'var(--accent)' }}>₹{b.totalFare}</strong></div>
-                      </div>
-
-                      {['pending', 'accepted'].includes(b.status) && (
-                        <button
-                          onClick={() => handleCancel(b._id)}
-                          className="btn btn-outline btn-sm"
-                          style={{ color: 'var(--danger)', borderColor: 'var(--border)' }}
-                        >
-                          Cancel Booking
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

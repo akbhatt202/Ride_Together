@@ -151,12 +151,19 @@ export default function PassengerDashboard() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '0.75rem' }}>
-                    <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{booking.seatsBooked} seat(s) reserved</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <Link
+                      to={`/rides/${booking.ride?._id}`}
+                      className="btn btn-outline btn-sm"
+                      style={{ fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                    >
+                      <span>Track Live Map</span>
+                      <ArrowRight size={13} />
+                    </Link>
                     <button
                       onClick={() => handleCancelBooking(booking._id)}
                       className="btn btn-outline btn-sm"
-                      style={{ color: 'var(--danger)', borderColor: 'var(--danger)' }}
+                      style={{ color: 'var(--danger)', borderColor: 'var(--danger)', fontSize: '0.8rem' }}
                     >
                       Cancel Booking
                     </button>

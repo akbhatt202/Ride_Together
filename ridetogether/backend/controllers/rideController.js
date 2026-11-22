@@ -83,15 +83,17 @@ const getAllRides = async (req, res, next) => {
       query.destination = { $regex: destination.trim(), $options: 'i' };
     }
 
-    // Date filtering (matches whole day)
+    // Date filtering (matches whole day with timezone tolerance)
     if (date) {
       const searchDate = new Date(date);
       if (!isNaN(searchDate.getTime())) {
         const startOfDay = new Date(searchDate);
         startOfDay.setUTCHours(0, 0, 0, 0);
+        startOfDay.setTime(startOfDay.getTime() - 14 * 60 * 60 * 1000); // include Indian Standard Time (UTC+5:30)
 
         const endOfDay = new Date(searchDate);
         endOfDay.setUTCHours(23, 59, 59, 999);
+        endOfDay.setTime(endOfDay.getTime() + 14 * 60 * 60 * 1000);
 
         query.departureDate = { $gte: startOfDay, $lte: endOfDay };
       }
