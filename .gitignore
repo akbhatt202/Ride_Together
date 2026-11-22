@@ -29,3 +29,5 @@ ridetogether/backend/.env
 .idea/
 .DS_Store
 Thumbs.db
+
+.vercel

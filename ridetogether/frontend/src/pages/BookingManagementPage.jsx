@@ -226,7 +226,7 @@ export default function BookingManagementPage() {
                           Departure: {new Date(req.ride?.departureDate).toLocaleDateString()} at {req.ride?.departureTime}
                         </div>
                         <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--primary)', marginTop: '0.4rem' }}>
-                          Seats Requested: <strong style={{ color: 'var(--accent)' }}>{req.seatsBooked}</strong> • Total Fare: <strong style={{ color: 'var(--accent)' }}>${req.totalFare}</strong>
+                          Seats Requested: <strong style={{ color: 'var(--accent)' }}>{req.seatsBooked}</strong> • Total Fare: <strong style={{ color: 'var(--accent)' }}>₹{req.totalFare}</strong>
                         </div>
                       </div>
 
@@ -289,7 +289,7 @@ export default function BookingManagementPage() {
                       <div style={{ fontSize: '0.88rem', color: '#64748b', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                         <div>Date: <strong>{new Date(b.ride?.departureDate).toLocaleDateString()} at {b.ride?.departureTime}</strong></div>
                         <div>Driver: <strong>{b.ride?.driver?.name}</strong> ({b.ride?.driver?.phone})</div>
-                        <div>Seats Reserved: <strong>{b.seatsBooked}</strong> • Total: <strong style={{ color: 'var(--accent)' }}>${b.totalFare}</strong></div>
+                        <div>Seats Reserved: <strong>{b.seatsBooked}</strong> • Total: <strong style={{ color: 'var(--accent)' }}>₹{b.totalFare}</strong></div>
                       </div>
 
                       {['pending', 'accepted'].includes(b.status) && (

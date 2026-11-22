@@ -89,10 +89,10 @@ export default function LoginPage() {
               type="button"
               className="btn btn-outline btn-sm"
               style={{ justifyContent: 'space-between', fontSize: '0.82rem' }}
-              onClick={() => handleQuickLogin('driver.john@example.com', 'driver123')}
+              onClick={() => handleQuickLogin('driver.rajesh@example.com', 'driver123')}
               disabled={loading}
             >
-              <span>Driver: John (Toyota Camry)</span>
+              <span>Driver: Rajesh Sharma (Maruti Dzire)</span>
               <span className="badge badge-driver">Driver</span>
             </button>
 
@@ -100,10 +100,10 @@ export default function LoginPage() {
               type="button"
               className="btn btn-outline btn-sm"
               style={{ justifyContent: 'space-between', fontSize: '0.82rem' }}
-              onClick={() => handleQuickLogin('passenger.alice@example.com', 'passenger123')}
+              onClick={() => handleQuickLogin('passenger.neha@example.com', 'passenger123')}
               disabled={loading}
             >
-              <span>Passenger: Alice Cooper</span>
+              <span>Passenger: Neha Gupta (Mumbai)</span>
               <span className="badge badge-passenger">Passenger</span>
             </button>
 
@@ -114,7 +114,7 @@ export default function LoginPage() {
               onClick={() => handleQuickLogin('admin@ridetogether.com', 'admin123')}
               disabled={loading}
             >
-              <span>Admin: System Administrator</span>
+              <span>Admin: Vikram Malhotra (Control Center)</span>
               <span className="badge badge-admin">Admin</span>
             </button>
           </div>

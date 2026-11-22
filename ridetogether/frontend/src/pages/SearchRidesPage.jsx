@@ -137,7 +137,7 @@ export default function SearchRidesPage() {
                   <input
                     type="text"
                     className="form-input"
-                    placeholder="Departure city"
+                    placeholder="Departure city (e.g. Mumbai)"
                     value={source}
                     onChange={(e) => setSource(e.target.value)}
                   />
@@ -149,7 +149,7 @@ export default function SearchRidesPage() {
                 <input
                   type="text"
                   className="form-input"
-                  placeholder="Destination city"
+                  placeholder="Destination city (e.g. Pune)"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
                 />
@@ -180,7 +180,7 @@ export default function SearchRidesPage() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Fare Range ($)</label>
+                <label className="form-label">Fare Range (₹ INR)</label>
                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                   <input
                     type="number"

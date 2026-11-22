@@ -142,7 +142,7 @@ export default function AdminDashboard() {
           <StatsCard
             icon={DollarSign}
             label="Gross Platform Revenue"
-            value={`$${dashboardData?.totalRevenue || 0}`}
+            value={`₹${dashboardData?.totalRevenue || 0}`}
             subtext="From accepted bookings ($sum)"
             color="green"
           />
@@ -204,7 +204,7 @@ export default function AdminDashboard() {
                               <span className="badge badge-accepted">{r.acceptedBookings}</span>
                             </td>
                             <td style={{ fontWeight: 700, color: 'var(--accent)' }}>
-                              ${r.totalRevenue}
+                              ₹{r.totalRevenue}
                             </td>
                           </tr>
                         ))}
@@ -258,7 +258,7 @@ export default function AdminDashboard() {
                           <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{m.bookingsCount} accepted bookings</div>
                         </div>
                         <span style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--accent)' }}>
-                          ${m.revenue}
+                          ₹{m.revenue}
                         </span>
                       </div>
                     ))}
@@ -286,7 +286,7 @@ export default function AdminDashboard() {
                           <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{d.driverEmail}</div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontWeight: 800, color: 'var(--accent)', fontSize: '1.1rem' }}>${d.totalEarnings}</div>
+                          <div style={{ fontWeight: 800, color: 'var(--accent)', fontSize: '1.1rem' }}>₹{d.totalEarnings}</div>
                           <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{d.totalAcceptedBookings} bookings</div>
                         </div>
                       </div>
@@ -408,7 +408,7 @@ export default function AdminDashboard() {
                         <div>{new Date(r.departureDate).toLocaleDateString()}</div>
                         <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{r.departureTime}</div>
                       </td>
-                      <td style={{ fontWeight: 700, color: 'var(--accent)' }}>${r.farePerSeat}</td>
+                      <td style={{ fontWeight: 700, color: 'var(--accent)' }}>₹{r.farePerSeat}</td>
                       <td>{r.availableSeats} / {r.totalSeats}</td>
                       <td>
                         <span className={`badge badge-${r.status}`}>{r.status}</span>

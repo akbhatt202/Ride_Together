@@ -132,7 +132,7 @@ export default function PassengerDashboard() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
                     <span className="badge badge-accepted">Confirmed Trip</span>
                     <span style={{ fontWeight: 800, color: 'var(--accent)', fontSize: '1.15rem' }}>
-                      ${booking.totalFare}
+                      ₹{booking.totalFare}
                     </span>
                   </div>
 
@@ -220,7 +220,7 @@ export default function PassengerDashboard() {
                         <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{booking.ride?.driver?.phone}</div>
                       </td>
                       <td>{booking.seatsBooked} seat(s)</td>
-                      <td style={{ fontWeight: 700, color: 'var(--accent)' }}>${booking.totalFare}</td>
+                      <td style={{ fontWeight: 700, color: 'var(--accent)' }}>₹{booking.totalFare}</td>
                       <td>
                         <span className={`badge badge-${booking.status}`}>{booking.status}</span>
                       </td>

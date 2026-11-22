@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import Alert from '../components/Alert';
+import RideMap from '../components/RideMap';
 import {
   Car,
   MapPin,
@@ -11,24 +12,25 @@ import {
   Users,
   FileText,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  Navigation
 } from 'lucide-react';
 
 export default function CreateRidePage() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    source: '',
-    destination: '',
+    source: 'Mumbai',
+    destination: 'Pune',
     departureDate: '',
     departureTime: '08:00 AM',
-    farePerSeat: 25,
+    farePerSeat: 350,
     totalSeats: 3,
-    make: 'Toyota',
-    model: 'Camry',
-    licensePlate: '',
-    color: 'Silver',
-    description: ''
+    make: 'Maruti Suzuki',
+    model: 'Dzire VXi',
+    licensePlate: 'MH-12-RN-4050',
+    color: 'Magma Grey',
+    description: 'Travel via Mumbai-Pune Expressway with comfortable seats and Fastag.'
   });
 
   const [loading, setLoading] = useState(false);
@@ -118,7 +120,7 @@ export default function CreateRidePage() {
                   type="text"
                   name="source"
                   className="form-input"
-                  placeholder="e.g. New York, NY"
+                  placeholder="e.g. Mumbai"
                   value={formData.source}
                   onChange={handleChange}
                   required
@@ -131,13 +133,30 @@ export default function CreateRidePage() {
                   type="text"
                   name="destination"
                   className="form-input"
-                  placeholder="e.g. Boston, MA"
+                  placeholder="e.g. Pune"
                   value={formData.destination}
                   onChange={handleChange}
                   required
                 />
               </div>
             </div>
+
+            {formData.source && formData.destination && (
+              <div style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: '#64748b', marginBottom: '0.5rem', fontWeight: 600 }}>
+                  <Navigation size={14} color="var(--accent)" />
+                  <span>Route Preview (Live Highway Corridors)</span>
+                </div>
+                <RideMap
+                  source={formData.source}
+                  destination={formData.destination}
+                  driverName="You (Driver)"
+                  vehicleModel={`${formData.make} ${formData.model}`}
+                  height="260px"
+                  interactiveTracking={false}
+                />
+              </div>
+            )}
 
             <div className="form-row">
               <div className="form-group">
@@ -158,7 +177,7 @@ export default function CreateRidePage() {
                   type="text"
                   name="departureTime"
                   className="form-input"
-                  placeholder="e.g. 08:30 AM"
+                  placeholder="e.g. 07:30 AM"
                   value={formData.departureTime}
                   onChange={handleChange}
                   required
@@ -176,19 +195,19 @@ export default function CreateRidePage() {
 
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">Fare Per Seat ($ USD) *</label>
+                <label className="form-label">Fare Per Seat (₹ INR) *</label>
                 <input
                   type="number"
                   name="farePerSeat"
                   className="form-input"
-                  placeholder="25"
+                  placeholder="350"
                   value={formData.farePerSeat}
                   onChange={handleChange}
                   min="0"
-                  step="1"
+                  step="10"
                   required
                 />
-                <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Fair recommendation: $20 to $45 for medium distance trips</span>
+                <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Fair Indian inter-city rate: ₹300 to ₹700 per seat</span>
               </div>
 
               <div className="form-group">

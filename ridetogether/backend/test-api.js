@@ -87,7 +87,7 @@ async function runTests() {
 
     // 2. Invalid Login Test
     const invalidLogin = await request('POST', '/api/auth/login', {
-      email: 'driver.john@example.com',
+      email: 'driver.rajesh@example.com',
       password: 'wrongpassword'
     });
     assert(invalidLogin.status === 401 && invalidLogin.body.success === false, '2. Invalid Password Login Rejection (401)');
@@ -101,7 +101,7 @@ async function runTests() {
     const adminToken = adminLogin.body.token;
 
     const driverLogin = await request('POST', '/api/auth/login', {
-      email: 'driver.john@example.com',
+      email: 'driver.rajesh@example.com',
       password: 'driver123'
     });
     assert(driverLogin.status === 200 && driverLogin.body.user.role === 'driver', '3b. Driver Login & Role Validation');
@@ -109,7 +109,7 @@ async function runTests() {
     const driverId = driverLogin.body.user.id;
 
     const passengerLogin = await request('POST', '/api/auth/login', {
-      email: 'passenger.alice@example.com',
+      email: 'passenger.neha@example.com',
       password: 'passenger123'
     });
     assert(passengerLogin.status === 200 && passengerLogin.body.user.role === 'passenger', '3c. Passenger Login & Role Validation');
@@ -117,10 +117,10 @@ async function runTests() {
 
     // 4. Duplicate Registration Rejection
     const dupReg = await request('POST', '/api/auth/register', {
-      name: 'Duplicate John',
-      email: 'driver.john@example.com',
+      name: 'Duplicate Rajesh',
+      email: 'driver.rajesh@example.com',
       password: 'newpassword123',
-      phone: '+1 (555) 999-9999',
+      phone: '+91 99999 88888',
       role: 'driver'
     });
     assert(dupReg.status === 400 && dupReg.body.success === false, '4. Duplicate Email Registration Rejection (400)');

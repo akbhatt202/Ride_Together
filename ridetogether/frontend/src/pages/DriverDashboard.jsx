@@ -95,7 +95,7 @@ export default function DriverDashboard() {
           <StatsCard
             icon={DollarSign}
             label="Total Earnings"
-            value={`$${stats?.totalEarnings || 0}`}
+            value={`₹${stats?.totalEarnings || 0}`}
             subtext="From accepted passenger bookings"
             color="green"
           />
@@ -153,7 +153,7 @@ export default function DriverDashboard() {
                       <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{item.bookingsCount} booking(s) accepted</div>
                     </div>
                     <span style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--accent)' }}>
-                      +${item.monthlyEarnings}
+                      +₹{item.monthlyEarnings}
                     </span>
                   </div>
                 ))}
@@ -229,7 +229,7 @@ export default function DriverDashboard() {
                         <div>{new Date(ride.departureDate).toLocaleDateString()}</div>
                         <div style={{ fontSize: '0.78rem', color: '#64748b' }}>{ride.departureTime}</div>
                       </td>
-                      <td style={{ fontWeight: 700, color: 'var(--accent)' }}>${ride.farePerSeat}</td>
+                      <td style={{ fontWeight: 700, color: 'var(--accent)' }}>₹{ride.farePerSeat}</td>
                       <td>
                         <span style={{ fontWeight: 600 }}>
                           {ride.availableSeats} / {ride.totalSeats}

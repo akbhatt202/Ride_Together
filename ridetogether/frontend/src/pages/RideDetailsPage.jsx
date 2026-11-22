@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Alert from '../components/Alert';
+import RideMap from '../components/RideMap';
 import {
   MapPin,
   Calendar,
@@ -191,6 +192,27 @@ export default function RideDetailsPage() {
               )}
             </div>
 
+            {/* Interactive Route & Live GPS Tracking Map (Uber & Rapido Style) */}
+            <div style={{ marginBottom: '1.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                <h3 style={{ fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Navigation size={20} color="var(--accent)" />
+                  <span>Live Route Map & GPS Simulation</span>
+                </h3>
+                <span className="badge badge-active" style={{ fontSize: '0.75rem' }}>
+                  Live Tracking Ready
+                </span>
+              </div>
+              <RideMap
+                source={ride.source}
+                destination={ride.destination}
+                driverName={ride.driver?.name}
+                vehicleModel={`${ride.vehicleDetails?.make || ''} ${ride.vehicleDetails?.model || ''}`.trim() || 'Cab'}
+                height="420px"
+                interactiveTracking={true}
+              />
+            </div>
+
             {/* Vehicle & Safety Specs Card */}
             <div className="card" style={{ padding: '1.75rem', marginBottom: '1.75rem' }}>
               <h3 style={{ fontSize: '1.15rem', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -264,7 +286,7 @@ export default function RideDetailsPage() {
           <aside className="card" style={{ padding: '1.75rem', position: 'sticky', top: '90px' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
               <div>
-                <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--accent)' }}>${ride.farePerSeat}</span>
+                <span style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--accent)' }}>₹{ride.farePerSeat}</span>
                 <span style={{ fontSize: '0.85rem', color: '#64748b' }}> / seat</span>
               </div>
               <div style={{ textAlign: 'right' }}>
@@ -307,16 +329,16 @@ export default function RideDetailsPage() {
 
                 <div style={{ backgroundColor: '#f8fafc', padding: '1rem', borderRadius: 'var(--radius-md)', margin: '1.25rem 0' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '0.4rem', color: '#64748b' }}>
-                    <span>${ride.farePerSeat} × {selectedSeats} seat{selectedSeats > 1 ? 's' : ''}</span>
-                    <span>${totalFare}</span>
+                    <span>₹{ride.farePerSeat} × {selectedSeats} seat{selectedSeats > 1 ? 's' : ''}</span>
+                    <span>₹{totalFare}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '0.6rem', color: '#64748b' }}>
                     <span>Platform Booking Fee</span>
-                    <span style={{ color: 'var(--accent)', fontWeight: 600 }}>$0 (Free)</span>
+                    <span style={{ color: 'var(--accent)', fontWeight: 600 }}>₹0 (Free)</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.15rem', fontWeight: 800, borderTop: '1px solid var(--border)', paddingTop: '0.6rem', color: 'var(--primary)' }}>
                     <span>Total Fare</span>
-                    <span style={{ color: 'var(--accent)' }}>${totalFare}</span>
+                    <span style={{ color: 'var(--accent)' }}>₹{totalFare}</span>
                   </div>
                 </div>
 

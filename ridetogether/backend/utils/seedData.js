@@ -17,275 +17,272 @@ const seedData = async () => {
     await Ride.deleteMany();
     await Booking.deleteMany();
 
-    console.log('[Seed] Seeding Users...');
-    // Note: User model pre-save hook will hash passwords automatically!
+    console.log('[Seed] Seeding Indian Users...');
     const users = await User.create([
       {
-        name: 'Admin RideTogether',
+        name: 'Vikram Malhotra (Admin)',
         email: 'admin@ridetogether.com',
         password: 'admin123',
-        phone: '+1 (555) 000-0001',
+        phone: '+91 98000 00001',
         role: 'admin',
-        profileImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'
-      },
-      {
-        name: 'John Martinez (Driver)',
-        email: 'driver.john@example.com',
-        password: 'driver123',
-        phone: '+1 (555) 123-4567',
-        role: 'driver',
         profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'
       },
       {
-        name: 'Sarah Connor (Driver)',
-        email: 'driver.sarah@example.com',
+        name: 'Rajesh Sharma',
+        email: 'driver.rajesh@example.com',
         password: 'driver123',
-        phone: '+1 (555) 234-5678',
-        role: 'driver',
-        profileImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150'
-      },
-      {
-        name: 'David Kim (Driver)',
-        email: 'driver.david@example.com',
-        password: 'driver123',
-        phone: '+1 (555) 345-6789',
+        phone: '+91 98234 56789',
         role: 'driver',
         profileImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150'
       },
       {
-        name: 'Alice Cooper (Passenger)',
-        email: 'passenger.alice@example.com',
-        password: 'passenger123',
-        phone: '+1 (555) 987-6543',
-        role: 'passenger',
-        profileImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150'
+        name: 'Priya Patel',
+        email: 'driver.priya@example.com',
+        password: 'driver123',
+        phone: '+91 98765 43210',
+        role: 'driver',
+        profileImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150'
       },
       {
-        name: 'Bob Marley (Passenger)',
-        email: 'passenger.bob@example.com',
+        name: 'Arjun Reddy',
+        email: 'driver.arjun@example.com',
+        password: 'driver123',
+        phone: '+91 99887 76655',
+        role: 'driver',
+        profileImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'
+      },
+      {
+        name: 'Neha Gupta',
+        email: 'passenger.neha@example.com',
         password: 'passenger123',
-        phone: '+1 (555) 876-5432',
+        phone: '+91 91234 56780',
+        role: 'passenger',
+        profileImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150'
+      },
+      {
+        name: 'Rohit Verma',
+        email: 'passenger.rohit@example.com',
+        password: 'passenger123',
+        phone: '+91 98712 34567',
         role: 'passenger',
         profileImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150'
       },
       {
-        name: 'Charlie Brown (Passenger)',
-        email: 'passenger.charlie@example.com',
+        name: 'Ananya Iyer',
+        email: 'passenger.ananya@example.com',
         password: 'passenger123',
-        phone: '+1 (555) 765-4321',
+        phone: '+91 94455 66778',
         role: 'passenger',
-        profileImage: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150'
+        profileImage: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150'
       }
     ]);
 
     const admin = users[0];
-    const driverJohn = users[1];
-    const driverSarah = users[2];
-    const driverDavid = users[3];
-    const passAlice = users[4];
-    const passBob = users[5];
-    const passCharlie = users[6];
+    const driverRajesh = users[1];
+    const driverPriya = users[2];
+    const driverArjun = users[3];
+    const passNeha = users[4];
+    const passRohit = users[5];
+    const passAnanya = users[6];
 
-    console.log('[Seed] Seeding Rides...');
+    console.log('[Seed] Seeding Indian Corridors & Rides...');
     const now = new Date();
     const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
     const dayAfter = new Date(now.getTime() + 48 * 60 * 60 * 1000);
     const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    const pastDate = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000);
+    const pastDate = new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000);
 
     const rides = await Ride.create([
+      // 1. Mumbai -> Pune (Mumbai-Pune Expressway)
       {
-        driver: driverJohn._id,
-        source: 'New York',
-        destination: 'Boston',
+        driver: driverRajesh._id,
+        source: 'Mumbai',
+        destination: 'Pune',
         departureDate: tomorrow,
-        departureTime: '08:30 AM',
-        farePerSeat: 35,
+        departureTime: '07:30 AM',
+        farePerSeat: 350,
         totalSeats: 4,
-        availableSeats: 3, // 1 seat booked by Alice
+        availableSeats: 3, // 1 seat booked by Neha
         vehicleDetails: {
-          make: 'Toyota',
-          model: 'Camry Hybrid 2022',
-          licensePlate: 'NY-RIDE-77',
-          color: 'Midnight Blue'
+          make: 'Maruti Suzuki',
+          model: 'Dzire VXi 2023',
+          licensePlate: 'MH-12-RN-4050',
+          color: 'Magma Grey'
         },
-        description: 'Leaving from Midtown Manhattan. Comfortable ride, plenty of trunk space for bags. AC & Spotify playlist ready!',
+        description: 'Leaving from Dadar TT Circle via Chembur and Vashi Toll Naka. Taking Mumbai-Pune Expressway, drop off at Wakad / Hinjawadi Bridge. Fastag enabled, AC, clean car.',
         status: 'active'
       },
+      // 2. Pune -> Mumbai (Return Trip)
       {
-        driver: driverJohn._id,
-        source: 'Boston',
-        destination: 'New York',
+        driver: driverRajesh._id,
+        source: 'Pune',
+        destination: 'Mumbai',
         departureDate: dayAfter,
-        departureTime: '05:00 PM',
-        farePerSeat: 35,
+        departureTime: '06:00 PM',
+        farePerSeat: 350,
         totalSeats: 4,
         availableSeats: 4,
         vehicleDetails: {
-          make: 'Toyota',
-          model: 'Camry Hybrid 2022',
-          licensePlate: 'NY-RIDE-77',
-          color: 'Midnight Blue'
+          make: 'Maruti Suzuki',
+          model: 'Dzire VXi 2023',
+          licensePlate: 'MH-12-RN-4050',
+          color: 'Magma Grey'
         },
-        description: 'Return trip to New York. Drop off anywhere near Central Park or Times Square.',
+        description: 'Return evening trip to Mumbai. Pickup from Hinjawadi Phase 1, drop off at Chembur or Sion. Smooth driving with live GPS route tracking.',
         status: 'active'
       },
+      // 3. Delhi -> Jaipur (NH 48 / Delhi-Jaipur Expressway)
       {
-        driver: driverSarah._id,
-        source: 'San Francisco',
-        destination: 'Los Angeles',
+        driver: driverPriya._id,
+        source: 'Delhi',
+        destination: 'Jaipur',
         departureDate: tomorrow,
-        departureTime: '07:00 AM',
-        farePerSeat: 45,
+        departureTime: '06:00 AM',
+        farePerSeat: 500,
         totalSeats: 3,
-        availableSeats: 2, // 1 booked by Bob
+        availableSeats: 2, // 1 booked by Rohit
         vehicleDetails: {
-          make: 'Honda',
-          model: 'Civic EX 2023',
-          licensePlate: 'CA-SAF-101',
-          color: 'Pearl White'
+          make: 'Tata',
+          model: 'Nexon EV Empowered',
+          licensePlate: 'DL-01-CZ-8821',
+          color: 'Pristine White'
         },
-        description: 'Cruising down I-5 South. Quick coffee break near Kettleman City. Non-smoking vehicle.',
+        description: 'Early morning start from IFFCO Chowk Gurgaon. Eco-friendly electric ride with fast chargers pre-mapped. Quick stop at Mannat Dhaba for tea. Non-smoking.',
         status: 'active'
       },
+      // 4. Bengaluru -> Mysuru (Bengaluru-Mysuru Expressway)
       {
-        driver: driverSarah._id,
-        source: 'Los Angeles',
-        destination: 'San Diego',
+        driver: driverArjun._id,
+        source: 'Bengaluru',
+        destination: 'Mysuru',
         departureDate: dayAfter,
-        departureTime: '10:00 AM',
-        farePerSeat: 20,
+        departureTime: '08:00 AM',
+        farePerSeat: 300,
         totalSeats: 4,
+        availableSeats: 2, // 2 booked by Ananya
+        vehicleDetails: {
+          make: 'Hyundai',
+          model: 'Creta SX 2023',
+          licensePlate: 'KA-05-MJ-9911',
+          color: 'Phantom Black'
+        },
+        description: 'Cruising on the 10-lane expressway. Pickup from Silk Board / Kengeri Metro Station. Drop off at Mysore Palace or Suburban Bus Stand. Plenty of boot space.',
+        status: 'active'
+      },
+      // 5. Ahmedabad -> Surat (National Expressway 1 / NH 48)
+      {
+        driver: driverPriya._id,
+        source: 'Ahmedabad',
+        destination: 'Surat',
+        departureDate: nextWeek,
+        departureTime: '09:30 AM',
+        farePerSeat: 450,
+        totalSeats: 3,
         availableSeats: 3,
         vehicleDetails: {
-          make: 'Honda',
-          model: 'Civic EX 2023',
-          licensePlate: 'CA-SAF-101',
-          color: 'Pearl White'
+          make: 'Tata',
+          model: 'Nexon EV Empowered',
+          licensePlate: 'GJ-01-XY-3420',
+          color: 'Pristine White'
         },
-        description: 'Scenic drive down Pacific Coast Highway / I-5. Good vibes only.',
+        description: 'Direct drive on Vadodara-Ahmedabad Expressway down to Surat Varachha / Ring Road. Fast and comfortable ride.',
         status: 'active'
       },
+      // 6. Hyderabad -> Vijayawada (NH 65)
       {
-        driver: driverDavid._id,
-        source: 'Seattle',
-        destination: 'Portland',
+        driver: driverArjun._id,
+        source: 'Hyderabad',
+        destination: 'Vijayawada',
         departureDate: nextWeek,
-        departureTime: '09:00 AM',
-        farePerSeat: 28,
-        totalSeats: 4,
-        availableSeats: 2, // 2 booked by Charlie
-        vehicleDetails: {
-          make: 'Tesla',
-          model: 'Model 3 Long Range',
-          licensePlate: 'WA-EV-999',
-          color: 'Solid Black'
-        },
-        description: 'Zero emissions road trip! Fast chargers mapped out, quiet cabin with panoramic glass roof.',
-        status: 'active'
-      },
-      {
-        driver: driverDavid._id,
-        source: 'Austin',
-        destination: 'Dallas',
-        departureDate: nextWeek,
-        departureTime: '02:00 PM',
-        farePerSeat: 30,
+        departureTime: '05:30 AM',
+        farePerSeat: 550,
         totalSeats: 4,
         availableSeats: 4,
         vehicleDetails: {
-          make: 'Tesla',
-          model: 'Model 3 Long Range',
-          licensePlate: 'WA-EV-999',
-          color: 'Solid Black'
+          make: 'Hyundai',
+          model: 'Creta SX 2023',
+          licensePlate: 'TS-09-AB-1234',
+          color: 'Phantom Black'
         },
-        description: 'Direct drive up I-35 North. Wi-Fi hotspot available inside.',
+        description: 'Starting from LB Nagar circle. Smooth 4-lane national highway drive. Tea break near Suryapet.',
         status: 'active'
       },
-      // Completed Past Ride for historical aggregation
+      // 7. Completed Past Ride: Chandigarh -> Delhi (GT Road NH 44)
       {
-        driver: driverJohn._id,
-        source: 'Philadelphia',
-        destination: 'Washington DC',
+        driver: driverRajesh._id,
+        source: 'Chandigarh',
+        destination: 'Delhi',
         departureDate: pastDate,
-        departureTime: '11:00 AM',
-        farePerSeat: 25,
+        departureTime: '10:00 AM',
+        farePerSeat: 400,
         totalSeats: 4,
         availableSeats: 2,
         vehicleDetails: {
-          make: 'Toyota',
-          model: 'Camry Hybrid 2022',
-          licensePlate: 'NY-RIDE-77',
-          color: 'Midnight Blue'
+          make: 'Maruti Suzuki',
+          model: 'Dzire VXi 2023',
+          licensePlate: 'CH-01-TB-7766',
+          color: 'Magma Grey'
         },
-        description: 'Historical trip successfully completed.',
+        description: 'Completed historic journey along GT Road via Ambala and Karnal.',
         status: 'completed'
       }
     ]);
 
     console.log('[Seed] Seeding Bookings...');
     await Booking.create([
-      // Alice booked 1 seat on NY -> Boston (Accepted)
+      // Neha booked 1 seat on Mumbai -> Pune (Accepted)
       {
-        passenger: passAlice._id,
+        passenger: passNeha._id,
         ride: rides[0]._id,
         seatsBooked: 1,
-        totalFare: 35,
+        totalFare: 350,
         status: 'accepted'
       },
-      // Bob requested 1 seat on SF -> LA (Accepted)
+      // Rohit booked 1 seat on Delhi -> Jaipur (Accepted)
       {
-        passenger: passBob._id,
+        passenger: passRohit._id,
         ride: rides[2]._id,
         seatsBooked: 1,
-        totalFare: 45,
+        totalFare: 500,
         status: 'accepted'
       },
-      // Charlie booked 2 seats on Seattle -> Portland (Accepted)
+      // Ananya booked 2 seats on Bengaluru -> Mysuru (Accepted)
       {
-        passenger: passCharlie._id,
-        ride: rides[4]._id,
-        seatsBooked: 2,
-        totalFare: 56,
-        status: 'accepted'
-      },
-      // Alice requested 1 seat on LA -> San Diego (Pending for Sarah)
-      {
-        passenger: passAlice._id,
+        passenger: passAnanya._id,
         ride: rides[3]._id,
+        seatsBooked: 2,
+        totalFare: 600,
+        status: 'accepted'
+      },
+      // Neha requested 1 seat on Pune -> Mumbai (Pending for Rajesh)
+      {
+        passenger: passNeha._id,
+        ride: rides[1]._id,
         seatsBooked: 1,
-        totalFare: 20,
+        totalFare: 350,
         status: 'pending'
       },
-      // Bob requested 1 seat on Austin -> Dallas (Pending for David)
+      // Historical accepted booking for Rajesh (Chandigarh -> Delhi)
       {
-        passenger: passBob._id,
-        ride: rides[5]._id,
-        seatsBooked: 1,
-        totalFare: 30,
-        status: 'pending'
-      },
-      // Historical accepted booking for John (Philly -> DC)
-      {
-        passenger: passCharlie._id,
+        passenger: passRohit._id,
         ride: rides[6]._id,
         seatsBooked: 2,
-        totalFare: 50,
+        totalFare: 800,
         status: 'accepted',
         createdAt: pastDate
       }
     ]);
 
     console.log('--------------------------------------------------');
-    console.log('Database seeded successfully!');
+    console.log('Indian cities and routes seeded successfully!');
     console.log('Default credentials for testing:');
     console.log('  Admin:     admin@ridetogether.com / admin123');
-    console.log('  Driver:    driver.john@example.com / driver123');
-    console.log('  Driver:    driver.sarah@example.com / driver123');
-    console.log('  Driver:    driver.david@example.com / driver123');
-    console.log('  Passenger: passenger.alice@example.com / passenger123');
-    console.log('  Passenger: passenger.bob@example.com / passenger123');
-    console.log('  Passenger: passenger.charlie@example.com / passenger123');
+    console.log('  Driver:    driver.rajesh@example.com / driver123');
+    console.log('  Driver:    driver.priya@example.com / driver123');
+    console.log('  Driver:    driver.arjun@example.com / driver123');
+    console.log('  Passenger: passenger.neha@example.com / passenger123');
+    console.log('  Passenger: passenger.rohit@example.com / passenger123');
+    console.log('  Passenger: passenger.ananya@example.com / passenger123');
     console.log('--------------------------------------------------');
 
     await mongoose.connection.close();

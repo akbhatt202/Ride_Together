@@ -36,7 +36,7 @@ export default function RideCard({ ride }) {
         </div>
 
         <div className="ride-price-section">
-          <div className="ride-price">${ride.farePerSeat}</div>
+          <div className="ride-price">₹{ride.farePerSeat}</div>
           <div className="ride-price-label">per seat</div>
         </div>
       </div>

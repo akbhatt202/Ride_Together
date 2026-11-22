@@ -34,10 +34,10 @@ export default function LandingPage() {
   };
 
   const popularRoutes = [
-    { from: 'New York', to: 'Boston', fare: 35, time: '4h 15m' },
-    { from: 'San Francisco', to: 'Los Angeles', fare: 45, time: '5h 45m' },
-    { from: 'Seattle', to: 'Portland', fare: 28, time: '3h 10m' },
-    { from: 'Austin', to: 'Dallas', fare: 30, time: '3h 30m' }
+    { from: 'Mumbai', to: 'Pune', fare: 350, time: '2h 45m', highway: 'Mumbai-Pune Expressway' },
+    { from: 'Delhi', to: 'Jaipur', fare: 500, time: '4h 30m', highway: 'Delhi-Jaipur Expressway' },
+    { from: 'Bengaluru', to: 'Mysuru', fare: 300, time: '2h 15m', highway: 'Bengaluru-Mysuru Expressway' },
+    { from: 'Ahmedabad', to: 'Surat', fare: 450, time: '3h 45m', highway: 'National Expressway 1' }
   ];
 
   return (
@@ -65,7 +65,7 @@ export default function LandingPage() {
                 <MapPin size={18} color="#10b981" />
                 <input
                   type="text"
-                  placeholder="Leaving from (e.g. New York)"
+                  placeholder="Leaving from (e.g. Mumbai)"
                   className="search-field-input"
                   value={source}
                   onChange={(e) => setSource(e.target.value)}
@@ -76,7 +76,7 @@ export default function LandingPage() {
                 <MapPin size={18} color="#ef4444" />
                 <input
                   type="text"
-                  placeholder="Going to (e.g. Boston)"
+                  placeholder="Going to (e.g. Pune)"
                   className="search-field-input"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
@@ -143,7 +143,7 @@ export default function LandingPage() {
                     {route.from} → {route.to}
                   </div>
                   <div style={{ fontWeight: 800, color: 'var(--accent)', fontSize: '1.2rem' }}>
-                    ${route.fare}
+                    ₹{route.fare}
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.82rem', color: '#64748b' }}>
