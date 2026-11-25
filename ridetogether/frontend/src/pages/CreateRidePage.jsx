@@ -20,8 +20,10 @@ import {
   ShieldCheck,
   Navigation,
   Compass,
-  ArrowRight
+  ArrowRight,
+  ExternalLink
 } from 'lucide-react';
+import { getGoogleMapsDirectionsUrl } from '../utils/googleMapsLoader';
 
 export default function CreateRidePage() {
   const navigate = useNavigate();
@@ -217,14 +219,26 @@ export default function CreateRidePage() {
             {/* Live Route Map Preview */}
             {formData.source && formData.destination && (
               <div style={{ marginTop: '1rem', marginBottom: '0.75rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.4rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', color: '#64748b', fontWeight: 600 }}>
                     <Navigation size={14} color="var(--accent)" />
-                    <span>Highway Corridor Preview (~{estimatedKm} km)</span>
+                    <span>Google Maps Route Preview (~{estimatedKm} km)</span>
                   </div>
-                  <span style={{ fontSize: '0.78rem', color: '#10b981', fontWeight: 600 }}>
-                    Recommended fare: ₹{suggestedMinFare} – ₹{suggestedMaxFare}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span style={{ fontSize: '0.78rem', color: '#10b981', fontWeight: 600 }}>
+                      Suggested fare: ₹{suggestedMinFare} – ₹{suggestedMaxFare}
+                    </span>
+                    <a
+                      href={getGoogleMapsDirectionsUrl(formData.source, formData.destination)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ fontSize: '0.75rem', color: '#0284c7', display: 'flex', alignItems: 'center', gap: '0.2rem', textDecoration: 'none', fontWeight: 600 }}
+                      title="Open full driving route in Google Maps"
+                    >
+                      <ExternalLink size={12} />
+                      <span>Google Maps</span>
+                    </a>
+                  </div>
                 </div>
                 <RideMap
                   source={formData.source}

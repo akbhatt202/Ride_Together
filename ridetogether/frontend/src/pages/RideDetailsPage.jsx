@@ -28,8 +28,10 @@ import {
   Check,
   X,
   Zap,
-  Sparkles
+  Sparkles,
+  ExternalLink
 } from 'lucide-react';
+import { getGoogleMapsDirectionsUrl } from '../utils/googleMapsLoader';
 
 export default function RideDetailsPage() {
   const { id } = useParams();
@@ -332,23 +334,41 @@ export default function RideDetailsPage() {
               )}
             </div>
 
-            {/* Interactive Route & Live GPS Tracking Map (Uber & Rapido Style) */}
+            {/* Google Maps Route & Live GPS Tracking (Uber & Rapido Style) */}
             <div style={{ marginBottom: '1.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                <h3 style={{ fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <h3 style={{ fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
                   <Navigation size={20} color="var(--accent)" />
-                  <span>Live GPS Tracking & Route Waypoints</span>
+                  <span>Google Maps Live Route & Highway Telemetry</span>
                 </h3>
-                <span className="badge badge-active" style={{ fontSize: '0.75rem' }}>
-                  Interactive Map
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <a
+                    href={getGoogleMapsDirectionsUrl(ride.source, ride.destination)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-outline btn-sm"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.3rem',
+                      fontSize: '0.78rem',
+                      borderColor: '#38bdf8',
+                      color: '#0284c7',
+                      backgroundColor: 'rgba(56, 189, 248, 0.08)'
+                    }}
+                    title="Launch turn-by-turn driving mode in Google Maps"
+                  >
+                    <ExternalLink size={13} />
+                    <span>Open in Google Maps</span>
+                  </a>
+                </div>
               </div>
               <RideMap
                 source={ride.source}
                 destination={ride.destination}
                 driverName={ride.driver?.name}
                 vehicleModel={`${ride.vehicleDetails?.make || ''} ${ride.vehicleDetails?.model || ''}`.trim() || 'Cab'}
-                height="430px"
+                height="440px"
                 interactiveTracking={true}
               />
             </div>

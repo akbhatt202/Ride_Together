@@ -8,6 +8,12 @@ import {
   getRouteMilestones
 } from '../utils/indianCities';
 import {
+  getGoogleMapsApiKey,
+  setGoogleMapsApiKey,
+  loadGoogleMapsScript,
+  getGoogleMapsDirectionsUrl
+} from '../utils/googleMapsLoader';
+import {
   Navigation,
   Play,
   Pause,
@@ -21,22 +27,28 @@ import {
   ChevronDown,
   ChevronUp,
   Maximize2,
-  CheckCircle2
+  ExternalLink,
+  Key,
+  ShieldCheck,
+  CheckCircle2,
+  Zap,
+  Check,
+  X
 } from 'lucide-react';
 
 const MAP_TILES = {
   streets: {
-    name: 'Roadmap',
+    name: 'Google Roadmap',
     url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-    attribution: '&copy; OpenStreetMap, CartoDB'
+    attribution: '&copy; OpenStreetMap, CartoDB, Google Maps Style'
   },
   satellite: {
-    name: 'Satellite',
+    name: 'Google Satellite',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     attribution: '&copy; Esri, Maxar, Earthstar Geographics'
   },
   dark: {
-    name: 'Night Mode',
+    name: 'Night Navigation',
     url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
     attribution: '&copy; OpenStreetMap, CartoDB'
   }
@@ -51,16 +63,25 @@ export default function RideMap({
   interactiveTracking = true
 }) {
   const mapContainerRef = useRef(null);
-  const mapInstanceRef = useRef(null);
-  const tileLayerRef = useRef(null);
+  const leafletMapRef = useRef(null);
+  const googleMapRef = useRef(null);
   const carMarkerRef = useRef(null);
+  const googleCarMarkerRef = useRef(null);
   const polylineRef = useRef(null);
+  const trafficLayerRef = useRef(null);
 
-  // Live simulation states
+  // Map state
+  const [activeEngine, setActiveEngine] = useState('leaflet'); // 'google' or 'leaflet'
   const [mapTheme, setMapTheme] = useState('streets');
+  const [showTraffic, setShowTraffic] = useState(true);
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState(getGoogleMapsApiKey());
+  const [apiStatus, setApiStatus] = useState('');
+
+  // Live simulation telemetry
   const [isTracking, setIsTracking] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [liveSpeed, setLiveSpeed] = useState(78);
+  const [liveSpeed, setLiveSpeed] = useState(82);
   const [distanceRemaining, setDistanceRemaining] = useState(0);
   const [totalDistance, setTotalDistance] = useState(0);
   const [estimatedMinutes, setEstimatedMinutes] = useState(0);
@@ -72,46 +93,189 @@ export default function RideMap({
   // Route calculation
   const startCoords = getCityCoordinates(source);
   const endCoords = getCityCoordinates(destination);
-  const { waypoints, distance } = generateRouteWaypoints(startCoords, endCoords, 40);
+  const [routeWaypoints, setRouteWaypoints] = useState([]);
+  const [routeDistance, setRouteDistance] = useState(0);
   const milestones = getRouteMilestones(source, destination);
 
+  // Compute baseline geodesic route
   useEffect(() => {
+    const { waypoints, distance } = generateRouteWaypoints(startCoords, endCoords, 42);
+    setRouteWaypoints(waypoints);
+    setRouteDistance(distance);
     setTotalDistance(distance);
     setDistanceRemaining(distance);
-    setEstimatedMinutes(Math.max(15, Math.round((distance / 65) * 60))); // ~65 km/h avg highway speed
+    setEstimatedMinutes(Math.max(15, Math.round((distance / 65) * 60)));
     setCurrentMilestone(milestones[0] || `Departed from ${source}`);
     setCurrentStepIndex(0);
     setIsTracking(false);
-  }, [source, destination, distance]);
+  }, [source, destination]);
 
-  // Initialize or update Leaflet Map
+  // Attempt Google Maps API initialization if key is present
   useEffect(() => {
+    const key = getGoogleMapsApiKey();
+    if (key) {
+      loadGoogleMapsScript(key)
+        .then((googleMaps) => {
+          setActiveEngine('google');
+          setApiStatus('connected');
+          initGoogleMap(googleMaps);
+        })
+        .catch((err) => {
+          console.warn('Google Maps load issue, using high-res vector fallback:', err.message);
+          setActiveEngine('leaflet');
+          setApiStatus(err.message === 'AUTH_FAILURE' ? 'auth_error' : 'offline');
+          initLeafletMap();
+        });
+    } else {
+      setActiveEngine('leaflet');
+      initLeafletMap();
+    }
+  }, [source, destination, mapTheme]);
+
+  // Initialize Official Google Maps JavaScript API
+  const initGoogleMap = (googleMaps) => {
     if (!mapContainerRef.current) return;
 
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.remove();
-      mapInstanceRef.current = null;
+    // Clear existing Leaflet map if present
+    if (leafletMapRef.current) {
+      leafletMapRef.current.remove();
+      leafletMapRef.current = null;
+    }
+
+    const mapTypeMapping = {
+      streets: googleMaps.MapTypeId.ROADMAP,
+      satellite: googleMaps.MapTypeId.HYBRID,
+      dark: googleMaps.MapTypeId.ROADMAP
+    };
+
+    const gMap = new googleMaps.Map(mapContainerRef.current, {
+      center: { lat: (startCoords.lat + endCoords.lat) / 2, lng: (startCoords.lng + endCoords.lng) / 2 },
+      zoom: 9,
+      mapTypeId: mapTypeMapping[mapTheme] || googleMaps.MapTypeId.ROADMAP,
+      zoomControl: true,
+      mapTypeControl: false,
+      streetViewControl: true,
+      fullscreenControl: true
+    });
+    googleMapRef.current = gMap;
+
+    // Traffic Layer
+    const traffic = new googleMaps.TrafficLayer();
+    if (showTraffic) traffic.setMap(gMap);
+    trafficLayerRef.current = traffic;
+
+    // Real Google Directions Service query
+    const directionsService = new googleMaps.DirectionsService();
+    const directionsRenderer = new googleMaps.DirectionsRenderer({
+      map: gMap,
+      suppressMarkers: true,
+      polylineOptions: {
+        strokeColor: '#059669',
+        strokeWeight: 6,
+        strokeOpacity: 0.9
+      }
+    });
+
+    directionsService.route(
+      {
+        origin: { lat: startCoords.lat, lng: startCoords.lng },
+        destination: { lat: endCoords.lat, lng: endCoords.lng },
+        travelMode: googleMaps.TravelMode.DRIVING
+      },
+      (result, status) => {
+        if (status === googleMaps.DirectionsStatus.OK && result) {
+          directionsRenderer.setDirections(result);
+          const leg = result.routes[0]?.legs[0];
+          if (leg) {
+            setTotalDistance(Math.round(leg.distance.value / 1000));
+            setDistanceRemaining(Math.round(leg.distance.value / 1000));
+            setEstimatedMinutes(Math.round(leg.duration.value / 60));
+
+            // Extract Google route path coordinates for vehicle animation
+            const pathCoords = leg.steps.flatMap((step) =>
+              step.path.map((p) => ({ lat: p.lat(), lng: p.lng() }))
+            );
+            if (pathCoords.length > 5) {
+              setRouteWaypoints(pathCoords);
+            }
+          }
+        }
+      }
+    );
+
+    // Custom Google Markers
+    new googleMaps.Marker({
+      position: { lat: startCoords.lat, lng: startCoords.lng },
+      map: gMap,
+      title: `Pickup: ${source}`,
+      icon: {
+        path: googleMaps.SymbolPath.CIRCLE,
+        scale: 10,
+        fillColor: '#10b981',
+        fillOpacity: 1,
+        strokeColor: '#ffffff',
+        strokeWeight: 3
+      }
+    });
+
+    new googleMaps.Marker({
+      position: { lat: endCoords.lat, lng: endCoords.lng },
+      map: gMap,
+      title: `Drop-off: ${destination}`,
+      icon: {
+        path: googleMaps.SymbolPath.CIRCLE,
+        scale: 10,
+        fillColor: '#ef4444',
+        fillOpacity: 1,
+        strokeColor: '#ffffff',
+        strokeWeight: 3
+      }
+    });
+
+    // Custom Google Car Marker
+    const carMarker = new googleMaps.Marker({
+      position: { lat: startCoords.lat, lng: startCoords.lng },
+      map: gMap,
+      title: `${driverName} (${vehicleModel})`,
+      icon: {
+        path: 'M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.04 3H5.81l1.04-3zM19 17H5v-4.66l.12-.34h13.77l.11.34V17z',
+        scale: 1.2,
+        fillColor: '#10b981',
+        fillOpacity: 1,
+        strokeColor: '#0f172a',
+        strokeWeight: 1.5,
+        anchor: new googleMaps.Point(12, 12)
+      }
+    });
+    googleCarMarkerRef.current = carMarker;
+  };
+
+  // Initialize Leaflet Google-styled Vector Map (Zero Downtime Fallback)
+  const initLeafletMap = () => {
+    if (!mapContainerRef.current) return;
+
+    if (leafletMapRef.current) {
+      leafletMapRef.current.remove();
+      leafletMapRef.current = null;
     }
 
     const map = L.map(mapContainerRef.current, {
       zoomControl: true,
       scrollWheelZoom: false
     });
-    mapInstanceRef.current = map;
+    leafletMapRef.current = map;
 
-    // Add Tile Layer
     const currentTile = MAP_TILES[mapTheme] || MAP_TILES.streets;
-    const tileLayer = L.tileLayer(currentTile.url, {
+    L.tileLayer(currentTile.url, {
       attribution: currentTile.attribution,
       maxZoom: 18
     }).addTo(map);
-    tileLayerRef.current = tileLayer;
 
-    // Custom Icon for Source (Green Pickup Pin)
+    // Google-style Pin A
     const sourceIcon = L.divIcon({
-      className: 'custom-map-pin start',
+      className: 'google-pin-a',
       html: `
-        <div style="background:#10b981; color:#ffffff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(16,185,129,0.5); border:3px solid #ffffff; font-weight:800; font-size:13px; font-family:sans-serif;">
+        <div style="background:#10b981; color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(16,185,129,0.5); border:3px solid #fff; font-weight:800; font-size:13px; font-family:sans-serif;">
           A
         </div>
       `,
@@ -119,11 +283,11 @@ export default function RideMap({
       iconAnchor: [17, 17]
     });
 
-    // Custom Icon for Destination (Red Dropoff Pin)
+    // Google-style Pin B
     const destIcon = L.divIcon({
-      className: 'custom-map-pin end',
+      className: 'google-pin-b',
       html: `
-        <div style="background:#ef4444; color:#ffffff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(239,68,68,0.5); border:3px solid #ffffff; font-weight:800; font-size:13px; font-family:sans-serif;">
+        <div style="background:#ef4444; color:#fff; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(239,68,68,0.5); border:3px solid #fff; font-weight:800; font-size:13px; font-family:sans-serif;">
           B
         </div>
       `,
@@ -131,28 +295,28 @@ export default function RideMap({
       iconAnchor: [17, 17]
     });
 
-    // Add Pickup & Dropoff Markers
     L.marker([startCoords.lat, startCoords.lng], { icon: sourceIcon })
-      .bindPopup(`<strong>Pickup:</strong> ${source}<br/><span style="color:#64748b; font-size:12px;">Start Point</span>`)
+      .bindPopup(`<strong>Pickup (A):</strong> ${source}`)
       .addTo(map);
 
     L.marker([endCoords.lat, endCoords.lng], { icon: destIcon })
-      .bindPopup(`<strong>Drop-off:</strong> ${destination}<br/><span style="color:#64748b; font-size:12px;">Destination Point</span>`)
+      .bindPopup(`<strong>Drop-off (B):</strong> ${destination}`)
       .addTo(map);
 
-    // Highway Route Polyline
-    const latLngs = waypoints.map((pt) => [pt.lat, pt.lng]);
-    const routePolyline = L.polyline(latLngs, {
+    const latLngs = (routeWaypoints.length > 0 ? routeWaypoints : generateRouteWaypoints(startCoords, endCoords, 42).waypoints).map(
+      (pt) => [pt.lat, pt.lng]
+    );
+
+    const polyline = L.polyline(latLngs, {
       color: mapTheme === 'dark' ? '#34d399' : '#059669',
-      weight: 5,
+      weight: 6,
       opacity: 0.9,
       lineCap: 'round',
       lineJoin: 'round'
     }).addTo(map);
+    polylineRef.current = polyline;
 
-    polylineRef.current = routePolyline;
-
-    // Custom Uber/Rapido Animated Car Marker
+    // Animated Rotating Car Marker
     const carIcon = L.divIcon({
       className: 'uber-live-car-marker',
       html: `
@@ -175,35 +339,24 @@ export default function RideMap({
       icon: carIcon,
       zIndexOffset: 1000
     }).addTo(map);
-
     carMarkerRef.current = carMarker;
 
-    // Fit map bounds with padding
     try {
-      map.fitBounds(routePolyline.getBounds(), {
-        padding: [45, 45],
-        maxZoom: 14
-      });
+      map.fitBounds(polyline.getBounds(), { padding: [45, 45], maxZoom: 14 });
     } catch (e) {
       map.setView([startCoords.lat, startCoords.lng], 9);
     }
+  };
 
-    return () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-    };
-  }, [source, destination, mapTheme]);
-
-  // Live Vehicle Tracking Animation Loop (Uber / Rapido Style)
+  // Live Vehicle Tracking Animation Loop with Rotation & Telemetry
   useEffect(() => {
     let interval;
+    const waypointsToUse = routeWaypoints.length > 0 ? routeWaypoints : [];
 
-    if (isTracking && waypoints.length > 0) {
+    if (isTracking && waypointsToUse.length > 0) {
       interval = setInterval(() => {
         setCurrentStepIndex((prevIndex) => {
-          if (prevIndex >= waypoints.length - 1) {
+          if (prevIndex >= waypointsToUse.length - 1) {
             setIsTracking(false);
             setCurrentMilestone(`Arrived at ${destination}! Trip Completed.`);
             setDistanceRemaining(0);
@@ -211,11 +364,11 @@ export default function RideMap({
             return prevIndex;
           }
 
-          const prevPoint = waypoints[prevIndex];
+          const prevPoint = waypointsToUse[prevIndex];
           const nextIndex = prevIndex + 1;
-          const currentPoint = waypoints[nextIndex];
+          const currentPoint = waypointsToUse[nextIndex];
 
-          // Calculate vehicle heading/bearing angle in degrees (Uber/Rapido car rotation)
+          // Calculate vehicle heading/bearing angle in degrees
           const dLng = (currentPoint.lng - prevPoint.lng) * (Math.PI / 180);
           const lat1 = prevPoint.lat * (Math.PI / 180);
           const lat2 = currentPoint.lat * (Math.PI / 180);
@@ -223,7 +376,7 @@ export default function RideMap({
           const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
           const bearing = Math.round((Math.atan2(y, x) * (180 / Math.PI) + 360) % 360);
 
-          // Move the live car marker & rotate towards heading
+          // Update Leaflet car position & rotation
           if (carMarkerRef.current) {
             carMarkerRef.current.setLatLng([currentPoint.lat, currentPoint.lng]);
             const markerEl = carMarkerRef.current.getElement();
@@ -236,25 +389,31 @@ export default function RideMap({
             }
           }
 
-          // Auto-center map on car if enabled
-          if (autoCenter && mapInstanceRef.current) {
-            mapInstanceRef.current.panTo([currentPoint.lat, currentPoint.lng], {
-              animate: true,
-              duration: 0.4
-            });
+          // Update Google Maps car position
+          if (googleCarMarkerRef.current && window.google && window.google.maps) {
+            googleCarMarkerRef.current.setPosition(new window.google.maps.LatLng(currentPoint.lat, currentPoint.lng));
+          }
+
+          // Auto-center map on car
+          if (autoCenter) {
+            if (leafletMapRef.current) {
+              leafletMapRef.current.panTo([currentPoint.lat, currentPoint.lng], { animate: true, duration: 0.4 });
+            } else if (googleMapRef.current) {
+              googleMapRef.current.panTo({ lat: currentPoint.lat, lng: currentPoint.lng });
+            }
           }
 
           // Calculate remaining metrics
-          const progressRatio = nextIndex / (waypoints.length - 1);
-          const remainingKm = Math.max(0, Math.round(distance * (1 - progressRatio)));
+          const progressRatio = nextIndex / (waypointsToUse.length - 1);
+          const remainingKm = Math.max(0, Math.round(totalDistance * (1 - progressRatio)));
           setDistanceRemaining(remainingKm);
-          setEstimatedMinutes(Math.max(1, Math.round((remainingKm / 70) * 60)));
+          setEstimatedMinutes(Math.max(1, Math.round((remainingKm / 72) * 60)));
 
-          // Fluctuating realistic Indian highway speed (72-92 km/h)
-          const randomSpeed = Math.floor(72 + Math.random() * 18);
+          // Realistic Indian highway speed fluctuation (75-92 km/h)
+          const randomSpeed = Math.floor(75 + Math.random() * 17);
           setLiveSpeed(randomSpeed);
 
-          // Update milestone text based on progress
+          // Milestone alert
           const milestoneIndex = Math.min(
             milestones.length - 1,
             Math.floor(progressRatio * milestones.length)
@@ -267,42 +426,52 @@ export default function RideMap({
     }
 
     return () => clearInterval(interval);
-  }, [isTracking, waypoints, distance, milestones, speedMultiplier, autoCenter, destination]);
+  }, [isTracking, routeWaypoints, totalDistance, milestones, speedMultiplier, autoCenter, destination]);
 
-  // Reset live tracking simulation
+  // Reset tracking
   const handleResetTracking = () => {
     setIsTracking(false);
     setCurrentStepIndex(0);
-    setDistanceRemaining(distance);
-    setEstimatedMinutes(Math.round((distance / 65) * 60));
+    setDistanceRemaining(totalDistance);
+    setEstimatedMinutes(Math.round((totalDistance / 65) * 60));
     setCurrentMilestone(milestones[0]);
 
-    if (carMarkerRef.current && waypoints.length > 0) {
-      carMarkerRef.current.setLatLng([waypoints[0].lat, waypoints[0].lng]);
+    if (routeWaypoints.length > 0) {
+      if (carMarkerRef.current) carMarkerRef.current.setLatLng([routeWaypoints[0].lat, routeWaypoints[0].lng]);
+      if (googleCarMarkerRef.current && window.google && window.google.maps) {
+        googleCarMarkerRef.current.setPosition(new window.google.maps.LatLng(routeWaypoints[0].lat, routeWaypoints[0].lng));
+      }
     }
 
-    if (mapInstanceRef.current && polylineRef.current) {
-      try {
-        mapInstanceRef.current.fitBounds(polylineRef.current.getBounds(), {
-          padding: [45, 45]
-        });
-      } catch (e) {}
-    }
+    handleCenterRoute();
   };
 
+  // Fit bounds to entire route
   const handleCenterRoute = () => {
-    if (mapInstanceRef.current && polylineRef.current) {
+    if (leafletMapRef.current && polylineRef.current) {
       try {
-        mapInstanceRef.current.fitBounds(polylineRef.current.getBounds(), {
-          padding: [45, 45]
-        });
+        leafletMapRef.current.fitBounds(polylineRef.current.getBounds(), { padding: [45, 45] });
       } catch (e) {}
+    } else if (googleMapRef.current && window.google && window.google.maps) {
+      const bounds = new window.google.maps.LatLngBounds();
+      bounds.extend({ lat: startCoords.lat, lng: startCoords.lng });
+      bounds.extend({ lat: endCoords.lat, lng: endCoords.lng });
+      googleMapRef.current.fitBounds(bounds);
     }
   };
+
+  // Save Google Maps API Key
+  const handleSaveApiKey = () => {
+    setGoogleMapsApiKey(apiKeyInput);
+    setShowKeyModal(false);
+    window.location.reload();
+  };
+
+  const googleDirectionsUrl = getGoogleMapsDirectionsUrl(source, destination);
 
   const progressPercentage =
-    waypoints.length > 1
-      ? Math.round((currentStepIndex / (waypoints.length - 1)) * 100)
+    routeWaypoints.length > 1
+      ? Math.round((currentStepIndex / (routeWaypoints.length - 1)) * 100)
       : 0;
 
   return (
@@ -317,7 +486,7 @@ export default function RideMap({
         marginBottom: '1.5rem'
       }}
     >
-      {/* Live Tracking HUD Header (Uber & Rapido Style) */}
+      {/* Live Tracking HUD Header (Uber & Rapido Style with Google Maps Engine) */}
       <div
         style={{
           backgroundColor: '#0f172a',
@@ -346,12 +515,12 @@ export default function RideMap({
               <span
                 className="badge"
                 style={{
-                  backgroundColor: isTracking ? 'rgba(16, 185, 129, 0.25)' : 'rgba(255, 255, 255, 0.1)',
-                  color: isTracking ? '#34d399' : '#cbd5e1',
+                  backgroundColor: activeEngine === 'google' ? 'rgba(59, 130, 246, 0.25)' : 'rgba(16, 185, 129, 0.25)',
+                  color: activeEngine === 'google' ? '#60a5fa' : '#34d399',
                   fontSize: '0.7rem'
                 }}
               >
-                {isTracking ? 'GPS SIMULATING' : 'READY TO TRACK'}
+                {activeEngine === 'google' ? 'GOOGLE MAPS API' : 'GOOGLE STYLED VECTOR'}
               </span>
             </div>
             <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
@@ -360,7 +529,7 @@ export default function RideMap({
           </div>
         </div>
 
-        {/* Live HUD Telemetry (Speed, Distance, ETA) */}
+        {/* Live HUD Telemetry (Speed, Distance, ETA) & External Google Maps Link */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', fontSize: '0.85rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
             <Gauge size={16} color="#34d399" />
@@ -377,15 +546,37 @@ export default function RideMap({
             <span>ETA: <strong>{estimatedMinutes}</strong> min</span>
           </div>
 
+          {/* Open in Official Google Maps Button */}
+          <a
+            href={googleDirectionsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-outline btn-sm"
+            style={{
+              padding: '0.25rem 0.6rem',
+              fontSize: '0.75rem',
+              color: '#ffffff',
+              borderColor: '#38bdf8',
+              backgroundColor: 'rgba(56, 189, 248, 0.15)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.3rem'
+            }}
+            title="Open turn-by-turn driving route in Google Maps App"
+          >
+            <ExternalLink size={12} />
+            <span>Google Maps</span>
+          </a>
+
           {/* Map Layer Switcher */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginLeft: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', marginLeft: '0.2rem' }}>
             <button
               type="button"
               className={`btn btn-sm ${mapTheme === 'streets' ? 'btn-primary' : 'btn-outline'}`}
               style={{ padding: '0.2rem 0.5rem', fontSize: '0.72rem' }}
               onClick={() => setMapTheme('streets')}
             >
-              Street
+              Road
             </button>
             <button
               type="button"
@@ -401,7 +592,7 @@ export default function RideMap({
               style={{ padding: '0.2rem 0.5rem', fontSize: '0.72rem' }}
               onClick={() => setMapTheme('dark')}
             >
-              Dark
+              Night
             </button>
           </div>
         </div>
@@ -422,7 +613,7 @@ export default function RideMap({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           <Radio size={14} color="#34d399" style={{ flex: 'none', animation: isTracking ? 'spin 3s linear infinite' : 'none' }} />
-          <span><strong>Current Milestone:</strong> {currentMilestone}</span>
+          <span><strong>Highway Milestone:</strong> {currentMilestone}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 'none' }}>
           <button
@@ -442,6 +633,7 @@ export default function RideMap({
             <span>{showMilestonesTimeline ? 'Hide Waypoints' : 'View Highway Route'}</span>
             {showMilestonesTimeline ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
           </button>
+
           <span style={{ fontWeight: 700, color: '#34d399' }}>
             {progressPercentage}% Completed
           </span>
@@ -473,13 +665,13 @@ export default function RideMap({
           }}
         >
           <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', marginBottom: '0.6rem' }}>
-            National Highway Checkpoints & Corridors
+            National Highway Route Milestones
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {milestones.map((m, idx) => {
               const currentIdx = Math.min(
                 milestones.length - 1,
-                Math.floor((currentStepIndex / (waypoints.length - 1)) * milestones.length)
+                Math.floor((currentStepIndex / (routeWaypoints.length - 1)) * milestones.length)
               );
               const isPassed = idx <= currentIdx;
               return (
@@ -502,7 +694,7 @@ export default function RideMap({
         </div>
       )}
 
-      {/* Leaflet Map Canvas */}
+      {/* Map Canvas (Google Maps or Google-Styled Vector) */}
       <div
         ref={mapContainerRef}
         style={{
@@ -579,8 +771,28 @@ export default function RideMap({
               <span>Auto-Follow Vehicle</span>
             </label>
 
+            {/* Google Maps API Key Modal Trigger */}
+            <button
+              type="button"
+              onClick={() => setShowKeyModal(true)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#3b82f6',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.2rem',
+                fontSize: '0.78rem',
+                fontWeight: 600
+              }}
+            >
+              <Key size={12} />
+              <span>Google API Key</span>
+            </button>
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-              <span>Simulation Speed:</span>
+              <span>Speed:</span>
               <button
                 type="button"
                 className={`btn btn-sm ${speedMultiplier === 1 ? 'btn-navy' : 'btn-outline'}`}
@@ -602,7 +814,81 @@ export default function RideMap({
         </div>
       )}
 
-      {/* Leaflet CSS Animation Injection */}
+      {/* Google Maps API Key Configuration Modal */}
+      {showKeyModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.75)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 10000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem'
+          }}
+        >
+          <div className="card" style={{ maxWidth: '440px', width: '100%', padding: '1.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Key size={18} color="#3b82f6" />
+                <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Google Maps API Key</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowKeyModal(false)}
+                style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '1.25rem', lineHeight: 1.5 }}>
+              Paste your Google Cloud Maps JavaScript API Key below to activate real-time Google Directions, live traffic congestion layers, and Street View.
+            </p>
+
+            <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+              <label className="form-label">Google Maps JavaScript API Key</label>
+              <input
+                type="text"
+                placeholder="AIzaSy..."
+                className="form-input"
+                style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}
+                value={apiKeyInput}
+                onChange={(e) => setApiKeyInput(e.target.value)}
+              />
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '0.2rem', display: 'block' }}>
+                Stored locally in your browser. Leave empty to use high-resolution Google-styled vector maps.
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setApiKeyInput('');
+                  setGoogleMapsApiKey('');
+                  setShowKeyModal(false);
+                  window.location.reload();
+                }}
+                className="btn btn-outline btn-sm"
+              >
+                Clear Key
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveApiKey}
+                className="btn btn-primary btn-sm"
+              >
+                Save & Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CSS Animations */}
       <style>{`
         @keyframes pulse-ring {
           0% { transform: scale(0.6); opacity: 0.9; }

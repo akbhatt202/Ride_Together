@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, Users, Car, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Calendar, Users, Car, ShieldCheck, MapPin } from 'lucide-react';
+import { getGoogleMapsDirectionsUrl } from '../utils/googleMapsLoader';
 
 export default function RideCard({ ride }) {
   if (!ride) return null;
@@ -78,7 +79,18 @@ export default function RideCard({ ride }) {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.4rem' }}>
+        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+          <a
+            href={getGoogleMapsDirectionsUrl(ride.source, ride.destination)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-outline btn-sm"
+            style={{ fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '0.25rem', padding: '0.35rem 0.6rem' }}
+            title="Open route in Google Maps"
+          >
+            <MapPin size={13} color="#ea4335" />
+            <span>Maps</span>
+          </a>
           <Link to={`/rides/${ride._id}`} className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.8rem' }}>
             <span>Book Seat</span>
             <ArrowRight size={13} />

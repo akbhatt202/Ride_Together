@@ -5,6 +5,8 @@ import RideCard from '../components/RideCard';
 import Pagination from '../components/Pagination';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Alert from '../components/Alert';
+import RideMap from '../components/RideMap';
+import { getGoogleMapsDirectionsUrl } from '../utils/googleMapsLoader';
 import { POPULAR_INDIAN_CITIES } from '../utils/indianCities';
 import {
   Search,
@@ -17,11 +19,14 @@ import {
   CarFront,
   RotateCcw,
   Sparkles,
-  Compass
+  Compass,
+  Navigation,
+  ExternalLink
 } from 'lucide-react';
 
 export default function SearchRidesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [showRoutePreview, setShowRoutePreview] = useState(false);
 
   // Filters state initialized from URL searchParams
   const [source, setSource] = useState(searchParams.get('source') || '');
@@ -323,6 +328,42 @@ export default function SearchRidesPage() {
                 </select>
               </div>
             </div>
+
+            {source && destination && (
+              <div style={{ marginBottom: '1.25rem', padding: '0.85rem 1.25rem', backgroundColor: '#eff6ff', borderRadius: 'var(--radius-md)', border: '1px solid #bfdbfe', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.6rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1e40af', fontWeight: 600, fontSize: '0.9rem' }}>
+                  <MapPin size={16} color="#ea4335" />
+                  <span>Highway Corridor: <strong>{source}</strong> → <strong>{destination}</strong></span>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowRoutePreview(!showRoutePreview)}
+                    className="btn btn-outline btn-sm"
+                    style={{ fontSize: '0.8rem', backgroundColor: '#ffffff', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+                  >
+                    <Navigation size={13} color="#2563eb" />
+                    <span>{showRoutePreview ? 'Hide Route Map' : 'Preview Route Map'}</span>
+                  </button>
+                  <a
+                    href={getGoogleMapsDirectionsUrl(source, destination)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-primary btn-sm"
+                    style={{ fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+                  >
+                    <ExternalLink size={13} />
+                    <span>Google Maps Directions</span>
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {showRoutePreview && source && destination && (
+              <div style={{ marginBottom: '1.5rem', borderRadius: 'var(--radius-lg)', overflow: 'hidden', boxShadow: 'var(--shadow-md)', border: '1px solid var(--border)' }}>
+                <RideMap source={source} destination={destination} height="360px" />
+              </div>
+            )}
 
             {loading ? (
               <LoadingSpinner text="Searching active highway rides..." />

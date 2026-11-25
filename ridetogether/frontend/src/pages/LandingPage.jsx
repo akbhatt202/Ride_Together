@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { POPULAR_INDIAN_CITIES } from '../utils/indianCities';
+import RideMap from '../components/RideMap';
+import { getGoogleMapsDirectionsUrl } from '../utils/googleMapsLoader';
 import {
   Search,
   MapPin,
@@ -191,71 +193,62 @@ export default function LandingPage() {
             <div>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent)', fontWeight: 700, fontSize: '0.82rem', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
                 <Zap size={16} />
-                <span>Uber & Rapido Style Tech</span>
+                <span>Google Maps API & Live Highway Telemetry</span>
               </div>
               <h2 style={{ fontSize: '2.2rem', marginBottom: '1rem', lineHeight: 1.2 }}>
-                Live GPS Ride Tracking & Highway Milestones
+                Live Google Maps GPS Tracking & Highway Milestones
               </h2>
               <p style={{ color: '#475569', fontSize: '1rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-                Never wonder where your ride is. RideTogether features an interactive Leaflet GPS tracking map with real-time speedometer HUD, remaining distance in kilometers, live ETA countdown, and milestone alerts along national expressways.
+                Never wonder where your ride is. Powered by Google Maps JavaScript API with turn-by-turn driving directions, real-time speedometer HUD, remaining distance in kilometers, live ETA countdown, and milestone alerts along national expressways.
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '2rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                   <CheckCircle2 size={18} color="#10b981" />
                   <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary)' }}>
-                    Real-time speed telemetry & milestone alerts
+                    Official Google Maps JavaScript API with high-resolution vector roadmap fallback
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                   <CheckCircle2 size={18} color="#10b981" />
                   <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary)' }}>
-                    Interactive Satellite, Street, and Night Mode layers
+                    Auto-rotating vehicle bearing along highway bends & curves
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                   <CheckCircle2 size={18} color="#10b981" />
                   <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--primary)' }}>
-                    Auto-follow camera keeps you focused on your ride
+                    1-Tap Turn-by-Turn Navigation directly in the Google Maps App
                   </span>
                 </div>
               </div>
 
-              <Link to="/rides" className="btn btn-primary btn-lg">
-                <Search size={18} />
-                <span>Explore Live Rides Now</span>
-              </Link>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <Link to="/rides" className="btn btn-primary btn-lg">
+                  <Search size={18} />
+                  <span>Explore Live Rides</span>
+                </Link>
+                <a
+                  href={getGoogleMapsDirectionsUrl('Delhi', 'Rishikesh')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-outline btn-lg"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                >
+                  <MapPin size={18} color="#ea4335" />
+                  <span>Google Maps App</span>
+                </a>
+              </div>
             </div>
 
-            <div className="card" style={{ padding: '1.5rem', backgroundColor: '#0f172a', color: '#ffffff', borderRadius: 'var(--radius-lg)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10b981', boxShadow: '0 0 10px #10b981' }}></div>
-                  <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Delhi → Rishikesh (Live Express HUD)</span>
-                </div>
-                <span className="badge" style={{ backgroundColor: 'rgba(16,185,129,0.2)', color: '#34d399' }}>
-                  GPS ACTIVE
-                </span>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', backgroundColor: '#1e293b', padding: '1rem', borderRadius: 'var(--radius-md)', marginBottom: '1rem', textAlign: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>SPEED</div>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#34d399' }}>82 km/h</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>REMAINING</div>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#38bdf8' }}>64 km</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>ETA</div>
-                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#fbbf24' }}>48 min</div>
-                </div>
-              </div>
-
-              <div style={{ fontSize: '0.85rem', color: '#cbd5e1', padding: '0.5rem 0.75rem', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '6px' }}>
-                📍 <strong>Milestone:</strong> Passing Haridwar Har Ki Pauri Bypass
-              </div>
+            <div>
+              <RideMap
+                source="Delhi"
+                destination="Rishikesh"
+                driverName="Rajesh Sharma (Verified Captain)"
+                vehicleModel="Maruti Dzire • DL 01 AB 4092"
+                height="460px"
+              />
             </div>
           </div>
         </div>
