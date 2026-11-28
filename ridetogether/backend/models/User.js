@@ -43,6 +43,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: ''
     },
+    vehicleDetails: {
+      make: { type: String, default: '' },
+      model: { type: String, default: '' },
+      licensePlate: { type: String, default: '' },
+      color: { type: String, default: '' }
+    },
+    isDriver: {
+      type: Boolean,
+      default: false
+    },
     createdAt: {
       type: Date,
       default: Date.now

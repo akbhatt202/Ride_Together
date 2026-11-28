@@ -620,7 +620,7 @@ Use these pre-seeded accounts or use the **1-Click Demo Login** buttons on the L
 
 | Role | Email Address | Password | Profile Description |
 | :--- | :--- | :--- | :--- |
-| **Admin** | `admin@ridetogether.com` | `admin123` | System Administrator with full control & analytics |
+| **Admin** | `bhattnkr@gmail.com` | `bhattankur@12345` | System Administrator with full control & analytics |
 | **Driver** | `driver.john@example.com` | `driver123` | John Martinez (Toyota Camry Hybrid) |
 | **Driver** | `driver.sarah@example.com` | `driver123` | Sarah Connor (Honda Civic EX) |
 | **Driver** | `driver.david@example.com` | `driver123` | David Kim (Tesla Model 3 Long Range) |

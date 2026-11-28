@@ -58,6 +58,8 @@ export const api = {
       request('/users/profile', { method: 'GET' }),
     updateProfile: (profileData) =>
       request('/users/profile', { method: 'PUT', body: profileData }),
+    becomeDriver: (vehicleData) =>
+      request('/users/become-driver', { method: 'POST', body: vehicleData }),
     getAllUsers: (params = '') =>
       request(`/users?${params}`, { method: 'GET' }),
     deleteUser: (userId) =>

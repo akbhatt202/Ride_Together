@@ -20,11 +20,12 @@ const seedData = async () => {
     console.log('[Seed] Seeding Indian Users...');
     const users = await User.create([
       {
-        name: 'Vikram Malhotra (Admin)',
-        email: 'admin@ridetogether.com',
-        password: 'admin123',
+        name: 'Ankur Bhatt (Admin)',
+        email: 'bhattnkr@gmail.com',
+        password: 'bhattankur@12345',
         phone: '+91 98000 00001',
         role: 'admin',
+        isDriver: true,
         profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'
       },
       {
@@ -592,14 +593,8 @@ const seedData = async () => {
 
     console.log('--------------------------------------------------');
     console.log('Indian cities and routes seeded successfully!');
-    console.log('Default credentials for testing:');
-    console.log('  Admin:     admin@ridetogether.com / admin123');
-    console.log('  Driver:    driver.rajesh@example.com / driver123');
-    console.log('  Driver:    driver.priya@example.com / driver123');
-    console.log('  Driver:    driver.arjun@example.com / driver123');
-    console.log('  Passenger: passenger.neha@example.com / passenger123');
-    console.log('  Passenger: passenger.rohit@example.com / passenger123');
-    console.log('  Passenger: passenger.ananya@example.com / passenger123');
+    console.log('Admin credentials:');
+    console.log('  Admin:     bhattnkr@gmail.com / bhattankur@12345');
     console.log('--------------------------------------------------');
 
     await mongoose.connection.close();

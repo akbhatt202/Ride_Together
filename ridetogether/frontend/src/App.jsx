@@ -53,7 +53,7 @@ export default function App() {
             <Route
               path="create-ride"
               element={
-                <ProtectedRoute allowedRoles={['driver']}>
+                <ProtectedRoute allowedRoles={['driver', 'admin']}>
                   <CreateRidePage />
                 </ProtectedRoute>
               }
@@ -62,17 +62,17 @@ export default function App() {
             <Route
               path="driver-dashboard"
               element={
-                <ProtectedRoute allowedRoles={['driver']}>
+                <ProtectedRoute allowedRoles={['driver', 'admin', 'passenger']}>
                   <DriverDashboard />
                 </ProtectedRoute>
               }
             />
 
-            {/* Passenger Only Routes */}
+            {/* Passenger Routes */}
             <Route
               path="passenger-dashboard"
               element={
-                <ProtectedRoute allowedRoles={['passenger']}>
+                <ProtectedRoute allowedRoles={['passenger', 'driver', 'admin']}>
                   <PassengerDashboard />
                 </ProtectedRoute>
               }

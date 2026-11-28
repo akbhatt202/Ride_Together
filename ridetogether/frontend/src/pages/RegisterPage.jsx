@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Alert from '../components/Alert';
-import { User, Mail, Lock, Phone, Car, Compass, ArrowRight } from 'lucide-react';
+import { User, Mail, Lock, Phone, Car, ShieldCheck } from 'lucide-react';
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -23,10 +23,6 @@ export default function RegisterPage() {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     if (error) setError('');
-  };
-
-  const handleRoleSelect = (role) => {
-    setFormData({ ...formData, role });
   };
 
   const handleSubmit = async (e) => {
@@ -50,19 +46,15 @@ export default function RegisterPage() {
     try {
       setLoading(true);
       const res = await register({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
         password: formData.password,
-        role: formData.role
+        role: 'passenger'
       });
 
       if (res.success) {
-        if (formData.role === 'driver') {
-          navigate('/driver-dashboard');
-        } else {
-          navigate('/rides');
-        }
+        navigate('/rides');
       }
     } catch (err) {
       setError(err.message || 'Failed to create account. Please try again.');
@@ -75,90 +67,66 @@ export default function RegisterPage() {
     <div style={{ padding: '3.5rem 1rem', display: 'flex', justifyContent: 'center' }}>
       <div className="card" style={{ maxWidth: '480px', width: '100%', padding: '2.25rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
-          <div className="brand-icon" style={{ margin: '0 auto 1rem auto', width: '42px', height: '42px' }}>
-            <Car size={24} />
+          <div className="brand-icon" style={{ margin: '0 auto 1rem auto', width: '44px', height: '44px' }}>
+            <Car size={26} />
           </div>
-          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.4rem' }}>Join RideTogether</h1>
+          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.4rem' }}>Create Your Account</h1>
           <p style={{ color: '#64748b', fontSize: '0.92rem' }}>
-            Sign up to share journeys, save on travel, and meet people
+            Sign up to search, book, and share rides across Indian cities and expressways
           </p>
         </div>
 
         {error && <Alert type="error" message={error} onClose={() => setError('')} />}
 
-        {/* Role Toggle Selector */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label className="form-label" style={{ marginBottom: '0.6rem' }}>I want to use RideTogether as:</label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-            <button
-              type="button"
-              onClick={() => handleRoleSelect('passenger')}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '0.4rem',
-                padding: '0.85rem',
-                borderRadius: 'var(--radius-md)',
-                border: formData.role === 'passenger' ? '2px solid var(--accent)' : '1px solid var(--border)',
-                backgroundColor: formData.role === 'passenger' ? 'var(--accent-soft)' : '#ffffff',
-                cursor: 'pointer',
-                fontWeight: 600,
-                color: formData.role === 'passenger' ? 'var(--accent-hover)' : 'var(--text-muted)'
-              }}
-            >
-              <Compass size={22} color={formData.role === 'passenger' ? 'var(--accent)' : '#94a3b8'} />
-              <span>Passenger</span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 400 }}>Book available rides</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleRoleSelect('driver')}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '0.4rem',
-                padding: '0.85rem',
-                borderRadius: 'var(--radius-md)',
-                border: formData.role === 'driver' ? '2px solid var(--accent)' : '1px solid var(--border)',
-                backgroundColor: formData.role === 'driver' ? 'var(--accent-soft)' : '#ffffff',
-                cursor: 'pointer',
-                fontWeight: 600,
-                color: formData.role === 'driver' ? 'var(--accent-hover)' : 'var(--text-muted)'
-              }}
-            >
-              <Car size={22} color={formData.role === 'driver' ? 'var(--accent)' : '#94a3b8'} />
-              <span>Driver</span>
-              <span style={{ fontSize: '0.75rem', fontWeight: 400 }}>Publish your trips</span>
-            </button>
+        {/* Driver capability informational banner */}
+        <div
+          style={{
+            backgroundColor: '#f0fdf4',
+            border: '1px solid #bbf7d0',
+            borderRadius: 'var(--radius-md)',
+            padding: '0.85rem',
+            marginBottom: '1.5rem',
+            fontSize: '0.82rem',
+            color: '#166534',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '0.5rem',
+            lineHeight: 1.5
+          }}
+        >
+          <ShieldCheck size={18} color="var(--accent)" style={{ flexShrink: 0, marginTop: '2px' }} />
+          <div>
+            <strong>Standard Registration:</strong> All users start with a normal account. If you want to publish rides, you can activate your <strong>Driver Profile</strong> inside the website anytime in 1 click!
           </div>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label">Full Name</label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type="text"
-                name="name"
-                className="form-input"
-                placeholder="e.g. John Doe"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <User size={14} color="#64748b" />
+              <span>Full Name</span>
+            </label>
+            <input
+              type="text"
+              name="name"
+              className="form-input"
+              placeholder="e.g. Rahul Sharma"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className="form-group">
-            <label className="form-label">Email Address</label>
+            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <Mail size={14} color="#64748b" />
+              <span>Email Address</span>
+            </label>
             <input
               type="email"
               name="email"
               className="form-input"
-              placeholder="you@example.com"
+              placeholder="rahul@example.com"
               value={formData.email}
               onChange={handleChange}
               required
@@ -166,12 +134,15 @@ export default function RegisterPage() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Phone Number</label>
+            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <Phone size={14} color="#64748b" />
+              <span>Phone Number</span>
+            </label>
             <input
               type="tel"
               name="phone"
               className="form-input"
-              placeholder="+1 (555) 000-0000"
+              placeholder="+91 98765 43210"
               value={formData.phone}
               onChange={handleChange}
               required
@@ -179,7 +150,10 @@ export default function RegisterPage() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Password</label>
+            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <Lock size={14} color="#64748b" />
+              <span>Password</span>
+            </label>
             <input
               type="password"
               name="password"
@@ -192,7 +166,10 @@ export default function RegisterPage() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Confirm Password</label>
+            <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <Lock size={14} color="#64748b" />
+              <span>Confirm Password</span>
+            </label>
             <input
               type="password"
               name="confirmPassword"
@@ -207,10 +184,10 @@ export default function RegisterPage() {
           <button
             type="submit"
             className="btn btn-primary"
-            style={{ width: '100%', marginTop: '0.75rem', padding: '0.8rem' }}
+            style={{ width: '100%', marginTop: '0.5rem', padding: '0.85rem' }}
             disabled={loading}
           >
-            {loading ? 'Creating Account...' : `Register as ${formData.role === 'driver' ? 'Driver' : 'Passenger'}`}
+            {loading ? 'Creating Account...' : 'Complete Sign Up'}
           </button>
         </form>
 

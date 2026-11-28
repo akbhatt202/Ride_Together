@@ -94,8 +94,8 @@ async function runTests() {
 
     // 3. Valid Login Tests for all 3 roles
     const adminLogin = await request('POST', '/api/auth/login', {
-      email: 'admin@ridetogether.com',
-      password: 'admin123'
+      email: 'bhattnkr@gmail.com',
+      password: 'bhattankur@12345'
     });
     assert(adminLogin.status === 200 && adminLogin.body.token, '3a. Admin Login & JWT Generation');
     const adminToken = adminLogin.body.token;

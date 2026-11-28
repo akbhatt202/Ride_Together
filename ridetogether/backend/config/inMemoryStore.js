@@ -53,7 +53,7 @@ function attachUserMethods(user) {
 }
 
 function initializeStore() {
-  const adminHash = hashPasswordSync('admin123');
+  const adminHash = hashPasswordSync('bhattankur@12345');
   const driverHash = hashPasswordSync('driver123');
   const passHash = hashPasswordSync('passenger123');
 
@@ -61,11 +61,12 @@ function initializeStore() {
     {
       _id: ADMIN_ID,
       id: ADMIN_ID,
-      name: 'Vikram Malhotra (Admin)',
-      email: 'admin@ridetogether.com',
+      name: 'Ankur Bhatt (Admin)',
+      email: 'bhattnkr@gmail.com',
       password: adminHash,
       phone: '+91 98000 00001',
       role: 'admin',
+      isDriver: true,
       profileImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
       createdAt: new Date()
     },

@@ -73,6 +73,55 @@ const updateUserProfile = async (req, res, next) => {
         email: updatedUser.email,
         phone: updatedUser.phone,
         role: updatedUser.role,
+        isDriver: updatedUser.isDriver || updatedUser.role === 'driver',
+        vehicleDetails: updatedUser.vehicleDetails,
+        profileImage: updatedUser.profileImage,
+        createdAt: updatedUser.createdAt
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Upgrade passenger account to driver account with vehicle details
+// @route   POST /api/users/become-driver
+// @access  Private
+const becomeDriver = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User profile not found'
+      });
+    }
+
+    const { make, model, licensePlate, color } = req.body;
+
+    user.role = 'driver';
+    user.isDriver = true;
+    user.vehicleDetails = {
+      make: make ? make.trim() : (user.vehicleDetails?.make || 'Standard'),
+      model: model ? model.trim() : (user.vehicleDetails?.model || 'Sedan'),
+      licensePlate: licensePlate ? licensePlate.trim().toUpperCase() : (user.vehicleDetails?.licensePlate || 'IN-TEMP-001'),
+      color: color ? color.trim() : (user.vehicleDetails?.color || 'White')
+    };
+
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Driver privileges activated! You can now publish rides and manage bookings while keeping full passenger access.',
+      user: {
+        id: updatedUser._id,
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        role: updatedUser.role,
+        isDriver: true,
+        vehicleDetails: updatedUser.vehicleDetails,
         profileImage: updatedUser.profileImage,
         createdAt: updatedUser.createdAt
       }
@@ -164,6 +213,7 @@ const deleteUser = async (req, res, next) => {
 module.exports = {
   getUserProfile,
   updateUserProfile,
+  becomeDriver,
   getAllUsers,
   deleteUser
 };

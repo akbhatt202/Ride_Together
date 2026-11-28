@@ -13,18 +13,16 @@ import {
   ChevronDown,
   Menu,
   X,
+  Compass,
   Sparkles,
-  Zap,
-  Users
+  Zap
 } from 'lucide-react';
 
 export default function Navbar() {
-  const { user, isAuthenticated, isDriver, isAdmin, isPassenger, login, logout } = useAuth();
+  const { user, isAuthenticated, isDriver, isAdmin, isPassenger, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [demoMenuOpen, setDemoMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const demoRef = useRef(null);
   const navigate = useNavigate();
 
   // Close dropdowns when clicked outside
@@ -32,9 +30,6 @@ export default function Navbar() {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
-      }
-      if (demoRef.current && !demoRef.current.contains(event.target)) {
-        setDemoMenuOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -46,18 +41,6 @@ export default function Navbar() {
     setMobileMenuOpen(false);
     logout();
     navigate('/login');
-  };
-
-  // 1-Click quick role switcher for evaluators & testing
-  const handleQuickSwitch = async (email, password, targetRoute) => {
-    setDemoMenuOpen(false);
-    setDropdownOpen(false);
-    try {
-      await login(email, password);
-      navigate(targetRoute);
-    } catch (err) {
-      console.error('Quick switch failed:', err.message);
-    }
   };
 
   const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : 'U';
@@ -81,129 +64,84 @@ export default function Navbar() {
               <span>Find a Ride</span>
             </NavLink>
 
-            {isDriver && (
-              <NavLink to="/create-ride" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                <PlusCircle size={16} color="var(--accent)" />
-                <span style={{ fontWeight: 700, color: 'var(--accent)' }}>Publish a Ride</span>
-              </NavLink>
+            {/* If driver or admin: show Publish Ride and Driver Hub */}
+            {isAuthenticated && (isDriver || isAdmin) && (
+              <>
+                <NavLink to="/create-ride" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                  <PlusCircle size={16} color="var(--accent)" />
+                  <span style={{ fontWeight: 700, color: 'var(--accent)' }}>Publish a Ride</span>
+                </NavLink>
+
+                <NavLink to="/driver-dashboard" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                  <LayoutDashboard size={16} />
+                  <span>Driver Hub</span>
+                </NavLink>
+              </>
             )}
 
+            {/* If logged in: show Bookings and Passenger Trips */}
             {isAuthenticated && (
               <>
-                {isDriver && (
-                  <NavLink to="/driver-dashboard" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                    <LayoutDashboard size={16} />
-                    <span>Driver Hub</span>
-                  </NavLink>
-                )}
-
-                {!isDriver && !isAdmin && (
-                  <NavLink to="/passenger-dashboard" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                    <LayoutDashboard size={16} />
-                    <span>My Trips</span>
-                  </NavLink>
-                )}
+                <NavLink to="/passenger-dashboard" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                  <Compass size={16} />
+                  <span>My Trips</span>
+                </NavLink>
 
                 <NavLink to="/bookings" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
                   <CalendarCheck size={16} />
                   <span>Bookings</span>
                 </NavLink>
-
-                {isAdmin && (
-                  <NavLink to="/admin" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-                    <ShieldAlert size={16} color="var(--danger)" />
-                    <span style={{ color: 'var(--danger)', fontWeight: 700 }}>Admin Panel</span>
-                  </NavLink>
-                )}
               </>
+            )}
+
+            {/* If passenger only: show Become a Driver */}
+            {isAuthenticated && !isDriver && !isAdmin && (
+              <NavLink
+                to="/driver-dashboard"
+                className="nav-link"
+                style={{
+                  color: 'var(--accent)',
+                  fontWeight: 700,
+                  backgroundColor: '#f0fdf4',
+                  padding: '0.35rem 0.75rem',
+                  borderRadius: '20px',
+                  border: '1px solid #bbf7d0'
+                }}
+              >
+                <Car size={15} color="var(--accent)" />
+                <span>Become a Driver</span>
+              </NavLink>
+            )}
+
+            {/* Admin link */}
+            {isAuthenticated && isAdmin && (
+              <NavLink to="/admin" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                <ShieldAlert size={16} color="var(--danger)" />
+                <span style={{ color: 'var(--danger)', fontWeight: 700 }}>Admin Panel</span>
+              </NavLink>
+            )}
+
+            {/* Unauthenticated: link directly to Driver Panel */}
+            {!isAuthenticated && (
+              <Link
+                to="/login?portal=driver"
+                className="nav-link"
+                style={{
+                  color: 'var(--accent)',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem'
+                }}
+              >
+                <Car size={16} color="var(--accent)" />
+                <span>Driver Panel</span>
+              </Link>
             )}
           </nav>
 
-          {/* Right Section: Evaluator Quick Switcher + User Profile */}
+          {/* Right Section: User Profile or Auth Buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            {/* Quick Demo Switcher Pill */}
-            <div style={{ position: 'relative' }} ref={demoRef}>
-              <button
-                type="button"
-                onClick={() => setDemoMenuOpen(!demoMenuOpen)}
-                className="btn btn-outline btn-sm"
-                style={{
-                  fontSize: '0.78rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.3rem',
-                  padding: '0.3rem 0.65rem',
-                  borderRadius: '20px',
-                  backgroundColor: '#f8fafc'
-                }}
-                title="1-Click Role Switcher for Testing"
-              >
-                <Sparkles size={13} color="#10b981" />
-                <span style={{ fontWeight: 600 }}>Demo Switcher</span>
-                <ChevronDown size={12} />
-              </button>
-
-              {demoMenuOpen && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    right: 0,
-                    top: 'calc(100% + 8px)',
-                    width: '260px',
-                    backgroundColor: '#ffffff',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1px solid var(--border)',
-                    boxShadow: '0 10px 25px -5px rgba(0,0,0,0.15)',
-                    padding: '0.6rem',
-                    zIndex: 1000
-                  }}
-                >
-                  <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', padding: '0.3rem 0.5rem', marginBottom: '0.3rem' }}>
-                    1-Click Switch Account:
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handleQuickSwitch('driver.rajesh@example.com', 'driver123', '/driver-dashboard')}
-                    className="user-menu-item"
-                    style={{ borderRadius: '6px', fontSize: '0.82rem', padding: '0.5rem' }}
-                  >
-                    <Car size={15} color="var(--accent)" />
-                    <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontWeight: 700 }}>Rajesh (Driver)</div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Maruti Dzire • Mumbai-Pune</div>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleQuickSwitch('passenger.neha@example.com', 'passenger123', '/rides')}
-                    className="user-menu-item"
-                    style={{ borderRadius: '6px', fontSize: '0.82rem', padding: '0.5rem' }}
-                  >
-                    <Users size={15} color="#0284c7" />
-                    <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontWeight: 700 }}>Neha (Passenger)</div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Search & Book Seats</div>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleQuickSwitch('admin@ridetogether.com', 'admin123', '/admin')}
-                    className="user-menu-item"
-                    style={{ borderRadius: '6px', fontSize: '0.82rem', padding: '0.5rem' }}
-                  >
-                    <ShieldAlert size={15} color="var(--danger)" />
-                    <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontWeight: 700 }}>Vikram (Admin)</div>
-                      <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Platform Control & Revenue</div>
-                    </div>
-                  </button>
-                </div>
-              )}
-            </div>
-
             {isAuthenticated ? (
               <div className="nav-user-dropdown" ref={dropdownRef}>
                 <button
@@ -244,32 +182,75 @@ export default function Navbar() {
                       <span>My Profile</span>
                     </Link>
 
-                    {isDriver ? (
-                      <Link
-                        to="/driver-dashboard"
-                        className="user-menu-item"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        <LayoutDashboard size={16} />
-                        <span>Driver Dashboard</span>
-                      </Link>
-                    ) : isAdmin ? (
+                    {/* Dual Account Navigation */}
+                    {isDriver || isAdmin ? (
+                      <>
+                        <Link
+                          to="/driver-dashboard"
+                          className="user-menu-item"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <Car size={16} color="var(--accent)" />
+                          <div style={{ textAlign: 'left' }}>
+                            <div style={{ fontWeight: 600 }}>Driver Hub</div>
+                            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Manage rides & earnings</div>
+                          </div>
+                        </Link>
+
+                        <Link
+                          to="/passenger-dashboard"
+                          className="user-menu-item"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <Compass size={16} color="#0284c7" />
+                          <div style={{ textAlign: 'left' }}>
+                            <div style={{ fontWeight: 600 }}>Passenger Trips</div>
+                            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>View your booked seats</div>
+                          </div>
+                        </Link>
+
+                        <Link
+                          to="/create-ride"
+                          className="user-menu-item"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <PlusCircle size={16} color="var(--accent)" />
+                          <span>Publish a New Ride</span>
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          to="/driver-dashboard"
+                          className="user-menu-item"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <Car size={16} color="var(--accent)" />
+                          <div style={{ textAlign: 'left' }}>
+                            <div style={{ fontWeight: 700, color: 'var(--accent)' }}>Activate Driver Mode</div>
+                            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>Register vehicle & offer rides</div>
+                          </div>
+                        </Link>
+
+                        <Link
+                          to="/passenger-dashboard"
+                          className="user-menu-item"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <Compass size={16} color="#0284c7" />
+                          <span>Passenger Trips</span>
+                        </Link>
+                      </>
+                    )}
+
+                    {isAdmin && (
                       <Link
                         to="/admin"
                         className="user-menu-item"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        <ShieldAlert size={16} />
-                        <span>Admin Dashboard</span>
-                      </Link>
-                    ) : (
-                      <Link
-                        to="/passenger-dashboard"
-                        className="user-menu-item"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        <LayoutDashboard size={16} />
-                        <span>Passenger Dashboard</span>
+                        <ShieldAlert size={16} color="var(--danger)" />
+                        <span style={{ color: 'var(--danger)', fontWeight: 700 }}>Admin Panel</span>
                       </Link>
                     )}
 
@@ -293,7 +274,7 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Link to="/login" className="btn btn-outline btn-sm">
                   Log In
                 </Link>
@@ -326,38 +307,48 @@ export default function Navbar() {
               <span>Find a Ride</span>
             </Link>
 
-            {isDriver && (
-              <Link
-                to="/create-ride"
-                className="mobile-nav-link"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <PlusCircle size={18} color="var(--accent)" />
-                <span>Publish a Ride</span>
-              </Link>
-            )}
-
             {isAuthenticated ? (
               <>
-                {isDriver && (
-                  <Link
-                    to="/driver-dashboard"
-                    className="mobile-nav-link"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <LayoutDashboard size={18} />
-                    <span>Driver Hub</span>
-                  </Link>
+                {(isDriver || isAdmin) && (
+                  <>
+                    <Link
+                      to="/create-ride"
+                      className="mobile-nav-link"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <PlusCircle size={18} color="var(--accent)" />
+                      <span>Publish a Ride</span>
+                    </Link>
+
+                    <Link
+                      to="/driver-dashboard"
+                      className="mobile-nav-link"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Car size={18} color="var(--accent)" />
+                      <span>Driver Hub</span>
+                    </Link>
+                  </>
                 )}
+
+                <Link
+                  to="/passenger-dashboard"
+                  className="mobile-nav-link"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Compass size={18} />
+                  <span>Passenger Trips</span>
+                </Link>
 
                 {!isDriver && !isAdmin && (
                   <Link
-                    to="/passenger-dashboard"
+                    to="/driver-dashboard"
                     className="mobile-nav-link"
+                    style={{ color: 'var(--accent)', fontWeight: 700 }}
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <LayoutDashboard size={18} />
-                    <span>Passenger Trips</span>
+                    <Car size={18} />
+                    <span>Become a Driver</span>
                   </Link>
                 )}
 
@@ -401,6 +392,14 @@ export default function Navbar() {
               </>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
+                <Link
+                  to="/login?portal=driver"
+                  className="btn btn-outline"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Car size={16} />
+                  <span>Driver Panel</span>
+                </Link>
                 <Link
                   to="/login"
                   className="btn btn-outline"
