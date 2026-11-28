@@ -6,6 +6,7 @@ import Pagination from '../components/Pagination';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Alert from '../components/Alert';
 import RideMap from '../components/RideMap';
+import PlaceAutocompleteInput from '../components/PlaceAutocompleteInput';
 import { getGoogleMapsDirectionsUrl } from '../utils/googleMapsLoader';
 import { POPULAR_INDIAN_CITIES } from '../utils/indianCities';
 import {
@@ -230,25 +231,21 @@ export default function SearchRidesPage() {
             <form onSubmit={handleSearchSubmit}>
               <div className="form-group">
                 <label className="form-label">Leaving From (Source)</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="e.g. Delhi, Mumbai"
-                  list="search-cities"
+                <PlaceAutocompleteInput
                   value={source}
-                  onChange={(e) => setSource(e.target.value)}
+                  onChange={setSource}
+                  placeholder="e.g. Delhi, Uttarakhand, Mumbai"
+                  icon={<MapPin size={16} color="#10b981" />}
                 />
               </div>
 
               <div className="form-group">
                 <label className="form-label">Going To (Destination)</label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="e.g. Rishikesh, Pune"
-                  list="search-cities"
+                <PlaceAutocompleteInput
                   value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
+                  onChange={setDestination}
+                  placeholder="e.g. Rishikesh, Maharashtra, Pune"
+                  icon={<MapPin size={16} color="#ef4444" />}
                 />
               </div>
 

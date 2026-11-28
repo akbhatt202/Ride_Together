@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import Alert from '../components/Alert';
 import RideMap from '../components/RideMap';
+import PlaceAutocompleteInput from '../components/PlaceAutocompleteInput';
 import {
   POPULAR_INDIAN_CITIES,
   getCityCoordinates,
@@ -188,29 +189,23 @@ export default function CreateRidePage() {
 
             <div className="form-row">
               <div className="form-group">
-                <label className="form-label">Leaving From (Source City) *</label>
-                <input
-                  type="text"
-                  name="source"
-                  className="form-input"
-                  placeholder="e.g. Delhi, Mumbai"
-                  list="cities-list"
+                <label className="form-label">Leaving From (Source City / Point) *</label>
+                <PlaceAutocompleteInput
                   value={formData.source}
-                  onChange={handleChange}
+                  onChange={(val) => setFormData((prev) => ({ ...prev, source: val }))}
+                  placeholder="e.g. Delhi, Uttarakhand, Mumbai"
+                  icon={<MapPin size={16} color="#10b981" />}
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label">Going To (Destination City) *</label>
-                <input
-                  type="text"
-                  name="destination"
-                  className="form-input"
-                  placeholder="e.g. Rishikesh, Pune"
-                  list="cities-list"
+                <label className="form-label">Going To (Destination City / Drop-off) *</label>
+                <PlaceAutocompleteInput
                   value={formData.destination}
-                  onChange={handleChange}
+                  onChange={(val) => setFormData((prev) => ({ ...prev, destination: val }))}
+                  placeholder="e.g. Rishikesh, Maharashtra, Pune"
+                  icon={<MapPin size={16} color="#ef4444" />}
                   required
                 />
               </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { POPULAR_INDIAN_CITIES } from '../utils/indianCities';
 import RideMap from '../components/RideMap';
+import PlaceAutocompleteInput from '../components/PlaceAutocompleteInput';
 import { getGoogleMapsDirectionsUrl } from '../utils/googleMapsLoader';
 import {
   Search,
@@ -77,27 +78,21 @@ export default function LandingPage() {
 
             {/* Floating Search Widget */}
             <form onSubmit={handleSearch} className="search-widget">
-              <div className="search-field">
-                <MapPin size={18} color="#10b981" />
-                <input
-                  type="text"
-                  placeholder="Leaving from (e.g. Delhi, Mumbai)"
-                  className="search-field-input"
-                  list="hero-cities"
+              <div className="search-field" style={{ minWidth: '220px', flex: 1.2 }}>
+                <PlaceAutocompleteInput
                   value={source}
-                  onChange={(e) => setSource(e.target.value)}
+                  onChange={setSource}
+                  placeholder="Leaving from (e.g. Delhi, Uttarakhand)"
+                  icon={<MapPin size={18} color="#10b981" />}
                 />
               </div>
 
-              <div className="search-field">
-                <MapPin size={18} color="#ef4444" />
-                <input
-                  type="text"
-                  placeholder="Going to (e.g. Rishikesh, Pune)"
-                  className="search-field-input"
-                  list="hero-cities"
+              <div className="search-field" style={{ minWidth: '220px', flex: 1.2 }}>
+                <PlaceAutocompleteInput
                   value={destination}
-                  onChange={(e) => setDestination(e.target.value)}
+                  onChange={setDestination}
+                  placeholder="Going to (e.g. Rishikesh, Maharashtra)"
+                  icon={<MapPin size={18} color="#ef4444" />}
                 />
               </div>
 

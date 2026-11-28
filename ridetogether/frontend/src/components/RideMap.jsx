@@ -148,10 +148,25 @@ export default function RideMap({
       dark: googleMaps.MapTypeId.ROADMAP
     };
 
+    // Sleek Uber / Google Maps Navigation Styling
+    const customMapStyles = mapTheme === 'dark' ? [
+      { elementType: 'geometry', stylers: [{ color: '#111827' }] },
+      { elementType: 'labels.text.stroke', stylers: [{ color: '#111827' }] },
+      { elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
+      { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#1f2937' }] },
+      { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#059669' }] },
+      { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#030712' }] }
+    ] : [
+      { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+      { featureType: 'transit', elementType: 'labels.icon', stylers: [{ visibility: 'simplified' }] },
+      { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#10b981' }, { weight: 1 }] }
+    ];
+
     const gMap = new googleMaps.Map(mapContainerRef.current, {
       center: { lat: (startCoords.lat + endCoords.lat) / 2, lng: (startCoords.lng + endCoords.lng) / 2 },
       zoom: 9,
       mapTypeId: mapTypeMapping[mapTheme] || googleMaps.MapTypeId.ROADMAP,
+      styles: customMapStyles,
       zoomControl: true,
       mapTypeControl: false,
       streetViewControl: true,

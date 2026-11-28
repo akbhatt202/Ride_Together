@@ -404,3 +404,162 @@ export function getRouteMilestones(source, destination) {
     `Arrived at ${destination} Drop-off Point`
   ];
 }
+
+/**
+ * All 28 States and 8 Union Territories of India with Capitals & Key Destinations
+ */
+export const INDIAN_STATES = [
+  { name: 'Uttarakhand', capital: 'Dehradun', majorCities: ['Rishikesh', 'Haridwar', 'Dehradun', 'Mussoorie', 'Nainital', 'Roorkee', 'Haldwani', 'Badrinath', 'Kedarnath'] },
+  { name: 'Uttar Pradesh', capital: 'Lucknow', majorCities: ['Noida', 'Greater Noida', 'Ghaziabad', 'Agra', 'Mathura', 'Vrindavan', 'Lucknow', 'Kanpur', 'Varanasi', 'Ayodhya', 'Prayagraj', 'Meerut'] },
+  { name: 'Delhi NCR', capital: 'New Delhi', majorCities: ['Delhi', 'New Delhi', 'Gurugram', 'Noida', 'Faridabad', 'Ghaziabad'] },
+  { name: 'Maharashtra', capital: 'Mumbai', majorCities: ['Mumbai', 'Pune', 'Navi Mumbai', 'Thane', 'Nashik', 'Nagpur', 'Shirdi', 'Chhatrapati Sambhajinagar', 'Kolhapur', 'Lonavala'] },
+  { name: 'Gujarat', capital: 'Gandhinagar', majorCities: ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot', 'Gandhinagar', 'Bhavnagar', 'Jamnagar', 'Dwarka', 'Somnath'] },
+  { name: 'Rajasthan', capital: 'Jaipur', majorCities: ['Jaipur', 'Udaipur', 'Jodhpur', 'Kota', 'Ajmer', 'Pushkar', 'Bikaner', 'Jaisalmer', 'Mount Abu'] },
+  { name: 'Karnataka', capital: 'Bengaluru', majorCities: ['Bengaluru', 'Mysuru', 'Mangaluru', 'Hubballi', 'Belagavi', 'Udupi', 'Hampi', 'Coorg'] },
+  { name: 'Himachal Pradesh', capital: 'Shimla', majorCities: ['Shimla', 'Manali', 'Dharamshala', 'Kullu', 'Kasauli', 'Dalhousie', 'Spiti'] },
+  { name: 'Punjab', capital: 'Chandigarh', majorCities: ['Chandigarh', 'Ludhiana', 'Amritsar', 'Jalandhar', 'Patiala', 'Mohali'] },
+  { name: 'Haryana', capital: 'Chandigarh', majorCities: ['Gurugram', 'Faridabad', 'Panipat', 'Ambala', 'Karnal', 'Panchkula', 'Sonipat'] },
+  { name: 'Madhya Pradesh', capital: 'Bhopal', majorCities: ['Indore', 'Bhopal', 'Ujjain', 'Gwalior', 'Jabalpur', 'Khajuraho'] },
+  { name: 'Tamil Nadu', capital: 'Chennai', majorCities: ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli', 'Salem', 'Ooty', 'Kanyakumari'] },
+  { name: 'Telangana', capital: 'Hyderabad', majorCities: ['Hyderabad', 'Secunderabad', 'Warangal', 'Nizamabad', 'Karimnagar'] },
+  { name: 'Andhra Pradesh', capital: 'Amaravati', majorCities: ['Visakhapatnam', 'Vijayawada', 'Guntur', 'Tirupati', 'Nellore'] },
+  { name: 'Kerala', capital: 'Thiruvananthapuram', majorCities: ['Kochi', 'Thiruvananthapuram', 'Kozhikode', 'Thrissur', 'Munnar', 'Alappuzha', 'Wayanad'] },
+  { name: 'West Bengal', capital: 'Kolkata', majorCities: ['Kolkata', 'Howrah', 'Siliguri', 'Darjeeling', 'Durgapur', 'Asansol'] },
+  { name: 'Bihar', capital: 'Patna', majorCities: ['Patna', 'Gaya', 'Muzaffarpur', 'Bhagalpur', 'Bodh Gaya'] },
+  { name: 'Jharkhand', capital: 'Ranchi', majorCities: ['Ranchi', 'Jamshedpur', 'Dhanbad', 'Bokaro', 'Deoghar'] },
+  { name: 'Odisha', capital: 'Bhubaneswar', majorCities: ['Bhubaneswar', 'Cuttack', 'Puri', 'Rourkela', 'Konark'] },
+  { name: 'Goa', capital: 'Panaji', majorCities: ['Panaji', 'Margao', 'Vasco da Gama', 'Calangute', 'Candolim', 'Baga'] },
+  { name: 'Chhattisgarh', capital: 'Raipur', majorCities: ['Raipur', 'Bhilai', 'Bilaspur'] },
+  { name: 'Assam', capital: 'Dispur', majorCities: ['Guwahati', 'Silchar', 'Dibrugarh', 'Jorhat'] },
+  { name: 'Jammu and Kashmir', capital: 'Srinagar / Jammu', majorCities: ['Srinagar', 'Jammu', 'Katra', 'Gulmarg', 'Pahalgam'] },
+  { name: 'Ladakh', capital: 'Leh', majorCities: ['Leh', 'Kargil', 'Nubra Valley'] },
+  { name: 'Chandigarh', capital: 'Chandigarh', majorCities: ['Chandigarh', 'Mohali', 'Panchkula'] }
+];
+
+/**
+ * High-Traffic Transit Hubs, Expressways & Iconic Landmarks
+ */
+export const INDIAN_TRANSIT_HUBS = [
+  // Airports
+  { name: 'Indira Gandhi International Airport (DEL)', city: 'Delhi', state: 'Delhi NCR', type: 'airport' },
+  { name: 'Chhatrapati Shivaji Maharaj International Airport (BOM)', city: 'Mumbai', state: 'Maharashtra', type: 'airport' },
+  { name: 'Kempegowda International Airport (BLR)', city: 'Bengaluru', state: 'Karnataka', type: 'airport' },
+  { name: 'Rajiv Gandhi International Airport (HYD)', city: 'Hyderabad', state: 'Telangana', type: 'airport' },
+  { name: 'Chennai International Airport (MAA)', city: 'Chennai', state: 'Tamil Nadu', type: 'airport' },
+  { name: 'Netaji Subhash Chandra Bose Airport (CCU)', city: 'Kolkata', state: 'West Bengal', type: 'airport' },
+  { name: 'Sardar Vallabhbhai Patel Airport (AMD)', city: 'Ahmedabad', state: 'Gujarat', type: 'airport' },
+  { name: 'Pune International Airport (PNQ)', city: 'Pune', state: 'Maharashtra', type: 'airport' },
+  { name: 'Jaipur International Airport (JAI)', city: 'Jaipur', state: 'Rajasthan', type: 'airport' },
+  { name: 'Jolly Grant Airport (DED) Rishikesh/Dehradun', city: 'Dehradun / Rishikesh', state: 'Uttarakhand', type: 'airport' },
+
+  // Railway Stations & Bus Terminals
+  { name: 'New Delhi Railway Station (NDLS)', city: 'Delhi', state: 'Delhi NCR', type: 'station' },
+  { name: 'Anand Vihar ISBT & Railway Terminal', city: 'Delhi', state: 'Delhi NCR', type: 'station' },
+  { name: 'Kashmiri Gate ISBT', city: 'Delhi', state: 'Delhi NCR', type: 'station' },
+  { name: 'Chhatrapati Shivaji Maharaj Terminus (CSMT)', city: 'Mumbai', state: 'Maharashtra', type: 'station' },
+  { name: 'Pune Junction Railway Station', city: 'Pune', state: 'Maharashtra', type: 'station' },
+  { name: 'KSR Bengaluru City Junction (SBC)', city: 'Bengaluru', state: 'Karnataka', type: 'station' },
+  { name: 'Howrah Junction (HWH)', city: 'Kolkata', state: 'West Bengal', type: 'station' },
+  { name: 'Haridwar Railway Station', city: 'Haridwar', state: 'Uttarakhand', type: 'station' },
+  { name: 'Rishikesh Yog Nagari Railway Station', city: 'Rishikesh', state: 'Uttarakhand', type: 'station' },
+
+  // Expressways & Highways
+  { name: 'Delhi-Meerut Expressway', city: 'Delhi / Meerut', state: 'Delhi NCR / UP', type: 'expressway' },
+  { name: 'Mumbai-Pune Expressway', city: 'Mumbai / Pune', state: 'Maharashtra', type: 'expressway' },
+  { name: 'Bengaluru-Mysuru Expressway', city: 'Bengaluru / Mysuru', state: 'Karnataka', type: 'expressway' },
+  { name: 'Yamuna Expressway (Greater Noida - Agra)', city: 'Greater Noida / Agra', state: 'Uttar Pradesh', type: 'expressway' },
+  { name: 'Delhi-Mumbai Expressway', city: 'Delhi / Mumbai', state: 'National Corridor', type: 'expressway' },
+  { name: 'Purvanchal Expressway', city: 'Lucknow / Ghazipur', state: 'Uttar Pradesh', type: 'expressway' },
+  { name: 'Samruddhi Mahamarg (Mumbai-Nagpur)', city: 'Mumbai / Nagpur', state: 'Maharashtra', type: 'expressway' },
+  { name: 'National Expressway 1 (NE1 Ahmedabad-Vadodara)', city: 'Ahmedabad / Vadodara', state: 'Gujarat', type: 'expressway' }
+];
+
+/**
+ * Intelligent Place, State & Corridor Autocomplete Search
+ * Delivers instant predictive recommendations when typing any state, place, city, hub, or highway.
+ */
+export function searchIndianPlaces(rawQuery, limit = 8) {
+  if (!rawQuery || typeof rawQuery !== 'string') return [];
+  const q = rawQuery.trim().toLowerCase();
+  if (q.length === 0) return [];
+
+  const results = [];
+  const seen = new Set();
+
+  const addResult = (item) => {
+    const key = (item.name + '_' + (item.secondaryText || '')).toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      results.push(item);
+    }
+  };
+
+  // 1. Matches on Indian States (recommends state and its key cities)
+  for (const st of INDIAN_STATES) {
+    const stName = st.name.toLowerCase();
+    if (stName.includes(q)) {
+      addResult({
+        name: st.name,
+        secondaryText: `State • Capital: ${st.capital} • (${st.majorCities.slice(0, 3).join(', ')})`,
+        category: 'state',
+        badge: 'State',
+        fullAddress: `${st.name}, India`
+      });
+
+      for (const cityName of st.majorCities) {
+        addResult({
+          name: cityName,
+          secondaryText: `${st.name}, India`,
+          category: 'city',
+          badge: 'City',
+          fullAddress: `${cityName}, ${st.name}, India`
+        });
+      }
+    }
+  }
+
+  // 2. Matches on Cities in INDIAN_CITIES
+  for (const [key, data] of Object.entries(INDIAN_CITIES)) {
+    const cityName = data.name.toLowerCase();
+    const stateName = (data.state || '').toLowerCase();
+
+    if (cityName.includes(q) || stateName.includes(q)) {
+      addResult({
+        name: data.name,
+        secondaryText: `${data.state}, India`,
+        category: 'city',
+        badge: 'City',
+        lat: data.lat,
+        lng: data.lng,
+        fullAddress: `${data.name}, ${data.state}, India`
+      });
+    }
+  }
+
+  // 3. Matches on Transit Hubs, Airports, Stations & Expressways
+  for (const hub of INDIAN_TRANSIT_HUBS) {
+    const hubName = hub.name.toLowerCase();
+    const hubCity = hub.city.toLowerCase();
+    const hubState = hub.state.toLowerCase();
+
+    if (
+      hubName.includes(q) ||
+      hubCity.includes(q) ||
+      hubState.includes(q) ||
+      (q === 'airport' && hub.type === 'airport') ||
+      (q === 'station' && hub.type === 'station') ||
+      (q.includes('express') && hub.type === 'expressway')
+    ) {
+      const badgeMap = { airport: 'Airport', station: 'Transit Hub', expressway: 'Expressway' };
+      addResult({
+        name: hub.name,
+        secondaryText: `${hub.city}, ${hub.state}`,
+        category: hub.type,
+        badge: badgeMap[hub.type] || 'Place',
+        fullAddress: `${hub.name}, ${hub.city}, ${hub.state}, India`
+      });
+    }
+  }
+
+  return results.slice(0, limit);
+}

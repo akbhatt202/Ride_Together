@@ -2,15 +2,18 @@
  * Google Maps API Dynamic Loader & Geolocation Utilities
  */
 
-let googleMapsPromise = null;
+export const DEFAULT_GOOGLE_MAPS_KEY = 'AIzaSyBEH1PUGQ0r7-0h9NX-qImHm9abECE8sxo';
 
-// Read API key from localStorage or Vite environment variable
+let googleMapsPromise = null;
+let googleAutocompleteService = null;
+
+// Read API key from localStorage, Vite environment variable, or default key
 export function getGoogleMapsApiKey() {
-  if (typeof window === 'undefined') return '';
+  if (typeof window === 'undefined') return DEFAULT_GOOGLE_MAPS_KEY;
   return (
     localStorage.getItem('GOOGLE_MAPS_API_KEY') ||
     import.meta.env.VITE_GOOGLE_MAPS_API_KEY ||
-    ''
+    DEFAULT_GOOGLE_MAPS_KEY
   );
 }
 
@@ -24,9 +27,10 @@ export function setGoogleMapsApiKey(key) {
   }
   // Reset cached promise so next load uses new key
   googleMapsPromise = null;
+  googleAutocompleteService = null;
 }
 
-// Dynamically load Google Maps JavaScript API
+// Dynamically load Google Maps JavaScript API with Places and Geometry libraries
 export function loadGoogleMapsScript(apiKey = '') {
   const keyToUse = apiKey || getGoogleMapsApiKey();
 
@@ -88,4 +92,52 @@ export function getGoogleMapsDirectionsUrl(origin, destination) {
 // Generate direct Google Maps place search URL
 export function getGoogleMapsPlaceUrl(placeName) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeName || 'India')}`;
+}
+
+// Client-side Google Places Autocomplete query
+export async function fetchGooglePlacesPredictions(query) {
+  if (!query || typeof query !== 'string' || query.trim().length < 1) {
+    return [];
+  }
+
+  try {
+    const googleMaps = await loadGoogleMapsScript();
+    if (!googleMaps || !googleMaps.places) {
+      return [];
+    }
+
+    if (!googleAutocompleteService) {
+      googleAutocompleteService = new googleMaps.places.AutocompleteService();
+    }
+
+    return await new Promise((resolve) => {
+      googleAutocompleteService.getPlacePredictions(
+        {
+          input: query.trim(),
+          componentRestrictions: { country: 'in' },
+          types: ['geocode', 'establishment']
+        },
+        (predictions, status) => {
+          if (status === googleMaps.places.PlacesServiceStatus.OK && predictions && predictions.length > 0) {
+            resolve(
+              predictions.map((p) => ({
+                name: p.structured_formatting?.main_text || p.description.split(',')[0],
+                secondaryText: p.structured_formatting?.secondary_text || 'India',
+                category: 'google',
+                badge: 'Google Place',
+                fullAddress: p.description,
+                placeId: p.place_id,
+                source: 'google'
+              }))
+            );
+          } else {
+            resolve([]);
+          }
+        }
+      );
+    });
+  } catch (err) {
+    // Graceful silent fallback to Indian Places directory
+    return [];
+  }
 }
