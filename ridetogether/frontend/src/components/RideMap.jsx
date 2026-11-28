@@ -99,7 +99,7 @@ export default function RideMap({
 
   // Compute baseline geodesic route
   useEffect(() => {
-    const { waypoints, distance } = generateRouteWaypoints(startCoords, endCoords, 42);
+    const { waypoints, distance } = generateRouteWaypoints(startCoords, endCoords, 75, source, destination);
     setRouteWaypoints(waypoints);
     setRouteDistance(distance);
     setTotalDistance(distance);
@@ -206,12 +206,21 @@ export default function RideMap({
             setDistanceRemaining(Math.round(leg.distance.value / 1000));
             setEstimatedMinutes(Math.round(leg.duration.value / 60));
 
-            // Extract Google route path coordinates for vehicle animation
-            const pathCoords = leg.steps.flatMap((step) =>
-              step.path.map((p) => ({ lat: p.lat(), lng: p.lng() }))
-            );
-            if (pathCoords.length > 5) {
-              setRouteWaypoints(pathCoords);
+            // Extract Google's exact turn-by-turn road polyline for real-life vehicle road path
+            const googleOverview = result.routes[0]?.overview_path?.map((p) => ({
+              lat: p.lat(),
+              lng: p.lng()
+            })) || [];
+
+            if (googleOverview.length > 5) {
+              setRouteWaypoints(googleOverview);
+            } else {
+              const pathCoords = leg.steps.flatMap((step) =>
+                step.path.map((p) => ({ lat: p.lat(), lng: p.lng() }))
+              );
+              if (pathCoords.length > 5) {
+                setRouteWaypoints(pathCoords);
+              }
             }
           }
         }
@@ -318,7 +327,7 @@ export default function RideMap({
       .bindPopup(`<strong>Drop-off (B):</strong> ${destination}`)
       .addTo(map);
 
-    const latLngs = (routeWaypoints.length > 0 ? routeWaypoints : generateRouteWaypoints(startCoords, endCoords, 42).waypoints).map(
+    const latLngs = (routeWaypoints.length > 0 ? routeWaypoints : generateRouteWaypoints(startCoords, endCoords, 75, source, destination).waypoints).map(
       (pt) => [pt.lat, pt.lng]
     );
 

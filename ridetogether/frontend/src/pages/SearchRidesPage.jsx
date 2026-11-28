@@ -48,12 +48,18 @@ export default function SearchRidesPage() {
 
   // Quick route filters
   const popularQuickFilters = [
-    { label: 'All Rides', source: '', destination: '' },
-    { label: 'Delhi → Rishikesh', source: 'Delhi', destination: 'Rishikesh' },
-    { label: 'Mumbai → Pune', source: 'Mumbai', destination: 'Pune' },
-    { label: 'Delhi → Jaipur', source: 'Delhi', destination: 'Jaipur' },
-    { label: 'Bengaluru → Mysuru', source: 'Bengaluru', destination: 'Mysuru' },
-    { label: 'Ahmedabad → Surat', source: 'Ahmedabad', destination: 'Surat' }
+    { label: 'All India', source: '', destination: '' },
+    { label: 'Delhi → Rishikesh (Uttarakhand)', source: 'Delhi', destination: 'Rishikesh' },
+    { label: 'Mumbai → Pune (Maharashtra)', source: 'Mumbai', destination: 'Pune' },
+    { label: 'Bengaluru → Mysuru (Karnataka)', source: 'Bengaluru', destination: 'Mysuru' },
+    { label: 'Delhi → Jaipur (Rajasthan)', source: 'Delhi', destination: 'Jaipur' },
+    { label: 'Ahmedabad → Surat (Gujarat)', source: 'Ahmedabad', destination: 'Surat' },
+    { label: 'Delhi → Dehradun (Uttarakhand)', source: 'Delhi', destination: 'Dehradun' },
+    { label: 'Delhi → Chandigarh (Punjab)', source: 'Delhi', destination: 'Chandigarh' },
+    { label: 'Mumbai → Goa (Coastal)', source: 'Mumbai', destination: 'Goa' },
+    { label: 'Chennai → Bengaluru (South)', source: 'Chennai', destination: 'Bengaluru' },
+    { label: 'Lucknow → Varanasi (UP)', source: 'Lucknow', destination: 'Varanasi' },
+    { label: 'Delhi → Manali (Himachal)', source: 'Delhi', destination: 'Manali' }
   ];
 
   // Sync state whenever searchParams in URL change (e.g. from LandingPage or back button)
