@@ -6,7 +6,7 @@
   "scripts": {
     "build:frontend": "cd ridetogether/frontend && npm install && npm run build",
     "build:backend": "cd ridetogether/backend && npm install",
-    "build": "npm run build:frontend && npm run build:backend",
+    "build": "npm run build:frontend && npm run build:backend && node -e \"const fs=require('fs'); if(fs.existsSync('ridetogether/frontend/dist')) fs.cpSync('ridetogether/frontend/dist', 'dist', { recursive: true });\"",
     "start": "node ridetogether/backend/server.js",
     "dev:backend": "cd ridetogether/backend && npm run dev",
     "dev:frontend": "cd ridetogether/frontend && npm run dev",
