@@ -68,4 +68,19 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema);
+const MongooseUser = mongoose.model('User', userSchema);
+const inMemoryStore = require('../config/inMemoryStore');
+
+const UserProxy = new Proxy(MongooseUser, {
+  get(target, prop) {
+    if (mongoose.connection.readyState === 1) {
+      return target[prop];
+    }
+    if (inMemoryStore && inMemoryStore.User && typeof inMemoryStore.User[prop] !== 'undefined') {
+      return inMemoryStore.User[prop];
+    }
+    return target[prop];
+  }
+});
+
+module.exports = UserProxy;

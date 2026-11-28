@@ -79,4 +79,19 @@ rideSchema.index({ source: 1, destination: 1, departureDate: 1, status: 1 });
 rideSchema.index({ status: 1, availableSeats: 1, departureDate: 1 });
 rideSchema.index({ driver: 1, createdAt: -1 });
 
-module.exports = mongoose.model('Ride', rideSchema);
+const MongooseRide = mongoose.model('Ride', rideSchema);
+const inMemoryStore = require('../config/inMemoryStore');
+
+const RideProxy = new Proxy(MongooseRide, {
+  get(target, prop) {
+    if (mongoose.connection.readyState === 1) {
+      return target[prop];
+    }
+    if (inMemoryStore && inMemoryStore.Ride && typeof inMemoryStore.Ride[prop] !== 'undefined') {
+      return inMemoryStore.Ride[prop];
+    }
+    return target[prop];
+  }
+});
+
+module.exports = RideProxy;

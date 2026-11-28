@@ -79,4 +79,19 @@ bookingSchema.index({ ride: 1, status: 1 });
 bookingSchema.index({ passenger: 1, createdAt: -1 });
 bookingSchema.index({ ride: 1, passenger: 1, status: 1 });
 
-module.exports = mongoose.model('Booking', bookingSchema);
+const MongooseBooking = mongoose.model('Booking', bookingSchema);
+const inMemoryStore = require('../config/inMemoryStore');
+
+const BookingProxy = new Proxy(MongooseBooking, {
+  get(target, prop) {
+    if (mongoose.connection.readyState === 1) {
+      return target[prop];
+    }
+    if (inMemoryStore && inMemoryStore.Booking && typeof inMemoryStore.Booking[prop] !== 'undefined') {
+      return inMemoryStore.Booking[prop];
+    }
+    return target[prop];
+  }
+});
+
+module.exports = BookingProxy;
